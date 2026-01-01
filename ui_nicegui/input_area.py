@@ -1,6 +1,6 @@
 """
 InputArea component for NiceGUI
-Text input with send button and auto-focus
+Text input with send button, auto-focus, and modern design
 """
 from nicegui import ui
 import asyncio
@@ -13,30 +13,37 @@ class InputArea:
         self.send_button = None
         
     def build(self):
-        """Build the input area UI"""
-        with ui.card().classes('w-full m-4 p-2'):
-            with ui.row().classes('w-full gap-2 items-center'):
+        """Build the input area UI with professional styling"""
+        with ui.card().classes('w-full m-4 p-3 shadow-xl').style(
+            'background-color: #1f2937; border: 1px solid #374151; border-radius: 20px;'
+        ):
+            with ui.row().classes('w-full gap-3 items-center'):
                 self.text_input = ui.input(
-                    placeholder='Ask anything...',
-                    on_change=self._check_enter
-                ).classes('flex-1').props('outlined dense')
+                    placeholder='Type your message...'
+                ).classes('flex-1').props('outlined dense dark standout').style(
+                    'background-color: #111827;'
+                    'border-radius: 12px;'
+                    'color: #e5e7eb;'
+                    'font-size: 14px;'
+                    'padding: 12px;'
+                )
                 
                 # Bind Enter key
                 self.text_input.on('keydown', self._handle_keydown)
                 
+                # Send button with gradient
                 self.send_button = ui.button(
                     icon='send',
                     on_click=self._handle_submit
-                ).props('round color=primary').classes('ml-2')
+                ).props('round').classes('shadow-lg').style(
+                    'background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);'
+                    'width: 48px; height: 48px;'
+                )
     
     async def _handle_keydown(self, e):
         """Handle keyboard events"""
         if e.args.get('keycode') == 13 and not e.args.get('shiftKey'):
             await self._handle_submit()
-    
-    def _check_enter(self, e):
-        """Placeholder for on_change"""
-        pass
     
     async def _handle_submit(self, e=None):
         """Handle message submission"""
@@ -56,12 +63,15 @@ class InputArea:
         """Disable input during processing"""
         if self.send_button:
             self.send_button.disable()
+        if self.text_input:
+            self.text_input.disable()
     
     def enable(self):
         """Enable input after processing"""
         if self.send_button:
             self.send_button.enable()
         if self.text_input:
+            self.text_input.enable()
             try:
                 self.text_input.run_method('focus')
             except:

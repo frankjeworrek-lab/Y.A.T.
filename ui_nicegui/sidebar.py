@@ -19,46 +19,73 @@ class Sidebar:
         self.status_container = None
         
     def build(self):
-        """Build the sidebar UI"""
-        with ui.column().classes('w-72 bg-grey-1 dark:bg-grey-10 p-5 gap-4 h-screen'):
-            # Header
-            ui.label('KI Chat').classes('text-2xl font-bold')
-            ui.separator()
+        """Build the sidebar UI with professional dark theme"""
+        with ui.column().classes('w-72 h-screen p-5 gap-4').style(
+            'background: linear-gradient(180deg, #1a1d29 0%, #0f1117 100%); border-right: 1px solid #2d3748;'
+        ):
+            # Header with gradient
+            with ui.row().classes('w-full items-center gap-3 pb-4'):
+                ui.icon('chat', size='lg').classes('text-blue-400')
+                ui.label('KI Chat').classes('text-2xl font-bold text-white')
+            
+            ui.separator().classes('bg-gray-700')
             
             # Model Configuration Section
-            with ui.row().classes('w-full justify-between items-center'):
-                ui.label('Model Configuration').classes('text-xs text-grey-6')
-                ui.button(icon='refresh', on_click=self._refresh_models).props('flat dense size=sm')
-            
-            # Model Dropdown
-            self.model_select = ui.select(
-                options={},
-                label='Select Model',
-                on_change=self._handle_model_change
-            ).classes('w-full').props('outlined dense')
+            with ui.column().classes('w-full gap-2 mt-2'):
+                with ui.row().classes('w-full justify-between items-center'):
+                    ui.label('Model').classes('text-sm font-semibold text-gray-300')
+                    ui.button(icon='refresh', on_click=self._refresh_models).props(
+                        'flat dense size=sm'
+                    ).classes('text-gray-400 hover:text-blue-400')
+                
+                # Model Dropdown with custom styling
+                self.model_select = ui.select(
+                    options={},
+                    label='Select Model',
+                    on_change=self._handle_model_change
+                ).classes('w-full').props('outlined dense dark bg-color="grey-9" label-color="grey-4"').style(
+                    'background-color: #1f2937; border-color: #374151;'
+                )
             
             # Status Container (for errors)
             with ui.column().classes('w-full') as status_col:
                 self.status_container = status_col
                 self.status_container.visible = False
             
-            ui.space().classes('h-4')
+            ui.space().classes('h-2')
             
             # Chat History Section
-            with ui.row().classes('w-full justify-between items-center'):
-                ui.label('Chat History').classes('text-xs text-grey-6')
-                ui.button(icon='add', on_click=self._handle_new_chat).props('flat dense size=sm')
+            with ui.column().classes('w-full flex-1'):
+                with ui.row().classes('w-full justify-between items-center mb-2'):
+                    ui.label('History').classes('text-sm font-semibold text-gray-300')
+                    ui.button(
+                        icon='add',
+                        on_click=self._handle_new_chat
+                    ).props('flat dense size=sm color=blue-4')
+                
+                # History List (scrollable) with custom styling
+                with ui.scroll_area().classes('flex-1').style('max-height: calc(100vh - 400px);'):
+                    with ui.column().classes('w-full gap-2') as history_col:
+                        self.history_container = history_col
+                        ui.label('No chats yet').classes('text-sm italic text-gray-500 p-2')
             
-            # History List (scrollable)
-            with ui.scroll_area().classes('flex-1'):
-                with ui.column().classes('w-full gap-2') as history_col:
-                    self.history_container = history_col
-                    ui.label('No chats yet').classes('text-sm italic text-grey-6')
+            ui.separator().classes('bg-gray-700 mt-auto')
             
-            ui.separator()
-            
-            # Settings Button
-            ui.button('Settings', icon='settings').props('outlined').classes('w-full')
+            # API Keys Button with modern styling
+            ui.button(
+                'Configure API Keys',
+                icon='key',
+                on_click=self._open_api_keys_dialog
+            ).props('outline').classes('w-full text-gray-300').style(
+                'border-color: #374151;'
+            )
+    
+    def _open_api_keys_dialog(self):
+        """Open API keys configuration dialog"""
+        from .api_key_dialog import APIKeyDialog
+        dialog = APIKeyDialog()
+        dialog.show()
+
     
     async def _refresh_models(self):
         """Refresh models from all providers"""
@@ -114,11 +141,12 @@ class Sidebar:
             if provider.config.init_error:
                 has_errors = True
                 with self.status_container:
-                    with ui.row().classes('items-center gap-2'):
-                        ui.icon('warning', color='amber', size='sm')
-                        ui.label(f"{provider.config.name}: {provider.config.init_error}").classes(
-                            'text-xs text-red'
-                        )
+                    with ui.card().classes('w-full p-2 bg-red-900 bg-opacity-20 border border-red-700'):
+                        with ui.row().classes('items-center gap-2'):
+                            ui.icon('warning', color='amber', size='sm')
+                            ui.label(f"{provider.config.name}: {provider.config.init_error}").classes(
+                                'text-xs text-red-300'
+                            )
         
         self.status_container.visible = has_errors
         
@@ -143,19 +171,28 @@ class Sidebar:
             self._handle_model_change(None)
     
     def update_history_list(self, conversations):
-        """Update chat history list"""
+        """Update chat history list with modern card design"""
         self.history_container.clear()
         
         if not conversations:
             with self.history_container:
-                ui.label('No chats yet').classes('text-sm italic text-grey-6')
+                ui.label('No chats yet').classes('text-sm italic text-gray-500 p-2')
         else:
             with self.history_container:
                 for conv in conversations:
-                    conv_id = conv['id']  # Extract to avoid closure issue
-                    with ui.card().classes('w-full p-2 cursor-pointer hover:bg-grey-3 dark:hover:bg-grey-8').on(
-                        'click', 
-                        lambda cid=conv_id: self._handle_load_chat(cid)
-                    ):
-                        ui.label(conv['title']).classes('text-sm font-medium truncate')
-                        ui.label(conv['updated_at'][:10]).classes('text-xs text-grey-6')
+                    conv_id = conv['id']
+                    with ui.card().classes('w-full p-3 cursor-pointer transition-all').style(
+                        'background-color: #1f2937; border: 1px solid #374151;'
+                        'transition: all 0.2s ease;'
+                    ).on('click', lambda cid=conv_id: self._handle_load_chat(cid)):
+                        # Add hover effect via inline style
+                        ui.add_head_html("""
+                        <style>
+                        .nicegui-content .q-card:hover {
+                            background-color: #2d3748 !important;
+                            border-color: #4299e1 !important;
+                        }
+                        </style>
+                        """)
+                        ui.label(conv['title']).classes('text-sm font-medium text-gray-200 truncate')
+                        ui.label(conv['updated_at'][:10]).classes('text-xs text-gray-500 mt-1')

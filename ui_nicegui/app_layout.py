@@ -39,13 +39,13 @@ class AppLayout:
         self.input_area = InputArea(self.handle_input_submit)
         
     def build(self):
-        """Build the main application layout"""
-        with ui.row().classes('w-full h-screen'):
+        """Build the main application layout with dark theme"""
+        with ui.row().classes('w-full h-screen').style('background-color: #0f1117; margin: 0; padding: 0;'):
             # Sidebar
             self.sidebar.build()
             
             # Main Content
-            with ui.column().classes('flex-1 h-screen'):
+            with ui.column().classes('flex-1 h-screen').style('padding: 0; margin: 0;'):
                 # Chat View
                 self.chat_view.build()
                 
