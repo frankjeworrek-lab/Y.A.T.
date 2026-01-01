@@ -1,6 +1,6 @@
 """
 API Key Configuration Dialog for NiceGUI
-Allows users to configure API keys directly from the GUI
+Allows users to configure API keys directly from the GUI with hot-reload
 """
 from nicegui import ui
 import os
@@ -8,11 +8,12 @@ from pathlib import Path
 
 
 class APIKeyDialog:
-    def __init__(self):
+    def __init__(self, llm_manager=None):
         self.dialog = None
         self.openai_input = None
         self.anthropic_input = None
         self.gemini_input = None
+        self.llm_manager = llm_manager  # For hot-reload
         
     def show(self):
         """Show the API key configuration dialog"""
@@ -95,14 +96,19 @@ class APIKeyDialog:
             # Buttons
             with ui.row().classes('w-full justify-end gap-3'):
                 ui.button('Cancel', on_click=self.dialog.close).props('outline').classes('text-gray-300')
-                ui.button('Save Keys', icon='save', on_click=self._save_keys).props('').style(
+                ui.button('Save Keys', icon='save', on_click=lambda: self._save_keys_wrapper()).props('').style(
                     'background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);'
                 )
         
         self.dialog.open()
     
-    def _save_keys(self):
-        """Save API keys to .env file"""
+    def _save_keys_wrapper(self):
+        """Wrapper for async _save_keys"""
+        import asyncio
+        asyncio.create_task(self._save_keys())
+    
+    async def _save_keys(self):
+        """Save API keys to .env file and hot-reload providers"""
         env_path = Path('.env')
         
         # Read existing .env content
@@ -144,5 +150,25 @@ class APIKeyDialog:
         if self.gemini_input.value:
             os.environ['GOOGLE_API_KEY'] = self.gemini_input.value
         
-        ui.notify('API Keys saved successfully! Restart app to apply changes.', type='positive')
+        # HOT-RELOAD: Re-initialize providers immediately!
+        if self.llm_manager:
+            ui.notify('Reloading providers...', type='info')
+            await self._reload_providers()
+            ui.notify('✓ API Keys saved & providers reloaded!', type='positive')
+        else:
+            ui.notify('API Keys saved! Restart app to apply changes.', type='positive')
+        
         self.dialog.close()
+    
+    async def _reload_providers(self):
+        """Hot-reload providers with new API keys"""
+        if not self.llm_manager:
+            return
+        
+        # Re-initialize each provider
+        for provider_id, provider in self.llm_manager.providers.items():
+            try:
+                await provider.initialize()
+                print(f"✓ Hot-reloaded: {provider_id}")
+            except Exception as e:
+                print(f"✗ Failed to reload {provider_id}: {e}")

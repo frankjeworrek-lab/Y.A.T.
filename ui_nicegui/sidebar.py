@@ -98,7 +98,7 @@ class Sidebar:
     def _open_api_keys_dialog(self):
         """Open API keys configuration dialog"""
         from .api_key_dialog import APIKeyDialog
-        dialog = APIKeyDialog()
+        dialog = APIKeyDialog(llm_manager=self.llm_manager)
         dialog.show()
 
     
