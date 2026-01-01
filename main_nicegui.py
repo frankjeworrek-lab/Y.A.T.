@@ -17,37 +17,62 @@ llm_manager = None
 
 
 async def initialize_providers():
-    """Initialize all providers on app startup"""
+    """Initialize all providers via plugin auto-discovery"""
     global llm_manager
     
     if llm_manager is not None:
         return  # Already initialized
     
+    from core.plugin_loader import PluginLoader
+    from core.provider_config_manager import ProviderConfigManager
+    from core.providers.types import ProviderConfig
+    
     llm_manager = LLMManager()
     
-    # Register Mock Provider
-    mock_config = ProviderConfig(name="Mock Provider")
-    llm_manager.register_provider("mock", MockProvider(mock_config))
+    # Load provider configurations
+    config_manager = ProviderConfigManager()
     
-    # Register OpenAI
-    from core.providers.openai_provider import OpenAIProvider
-    openai_config = ProviderConfig(name="OpenAI")
-    openai_provider = OpenAIProvider(openai_config)
-    await openai_provider.initialize()
-    llm_manager.register_provider("openai", openai_provider)
+    # Auto-discover and load plugins
+    plugin_loader = PluginLoader(plugins_dir="plugins")
+    plugins = plugin_loader.load_all_plugins()
     
-    # Register Anthropic
-    from core.providers.anthropic_provider import AnthropicProvider
-    anthropic_config = ProviderConfig(name="Anthropic")
-    anthropic_provider = AnthropicProvider(anthropic_config)
-    await anthropic_provider.initialize()
-    llm_manager.register_provider("anthropic", anthropic_provider)
+    print(f"\n🔌 Plugin System: Loaded {len(plugins)} plugin(s)")
     
-    # Set initial defaults
-    llm_manager.active_provider_id = "mock"
-    llm_manager.active_model_id = "mock-gpt-4"
+    # Register each loaded plugin
+    for plugin_name, provider_class in plugins.items():
+        # Get configuration for this provider
+        provider_config = config_manager.get_provider(plugin_name.replace('_plugin', ''))
+        
+        if not provider_config:
+            # Use default config if not in provider_config.json
+            provider_config_obj = ProviderConfig(name=plugin_name)
+        else:
+            provider_config_obj = ProviderConfig(name=provider_config.name)
+        
+        # Create and initialize provider instance
+        try:
+            provider_instance = provider_class(provider_config_obj)
+            await provider_instance.initialize()
+            
+            # Register with LLMManager
+            provider_id = plugin_name.replace('_plugin', '')
+            llm_manager.register_provider(provider_id, provider_instance)
+            
+            print(f"  ✓ Registered: {provider_id}")
+        except Exception as e:
+            print(f"  ✗ Failed to register {plugin_name}: {e}")
     
-    print("✓ Providers initialized successfully")
+    # Set intelligent defaults
+    enabled_providers = config_manager.get_enabled_providers()
+    if enabled_providers:
+        default_provider = enabled_providers[0]
+        llm_manager.active_provider_id = default_provider.id
+        models = await llm_manager.get_provider_models(default_provider.id)
+        if models:
+            llm_manager.active_model_id = models[0].id
+            print(f"\n✓ Default: {default_provider.name} / {models[0].name}")
+    
+    print("✓ Plugin-based providers initialized successfully\n")
 
 
 @ui.page('/')
