@@ -41,7 +41,13 @@ async def initialize_providers():
     # Register each loaded plugin
     for plugin_name, provider_class in plugins.items():
         # Get configuration for this provider
-        provider_config = config_manager.get_provider(plugin_name.replace('_plugin', ''))
+        provider_id = plugin_name.replace('_plugin', '')
+        provider_config = config_manager.get_provider(provider_id)
+        
+        # SKIP if provider is disabled in config
+        if provider_config and not provider_config.enabled:
+            print(f"  ⊘ Skipped: {provider_id} (disabled in config)")
+            continue
         
         if not provider_config:
             # Use default config if not in provider_config.json
@@ -55,7 +61,6 @@ async def initialize_providers():
             await provider_instance.initialize()
             
             # Register with LLMManager
-            provider_id = plugin_name.replace('_plugin', '')
             llm_manager.register_provider(provider_id, provider_instance)
             
             print(f"  ✓ Registered: {provider_id}")
