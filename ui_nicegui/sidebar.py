@@ -71,6 +71,15 @@ class Sidebar:
             
             ui.separator().classes('bg-gray-700 mt-auto')
             
+            # Provider Settings Button (new!)
+            ui.button(
+                'Manage Providers',
+                icon='settings',
+                on_click=self._open_provider_settings
+            ).props('outline').classes('w-full text-gray-300 mb-2').style(
+                'border-color: #374151;'
+            )
+            
             # API Keys Button with modern styling
             ui.button(
                 'Configure API Keys',
@@ -79,6 +88,12 @@ class Sidebar:
             ).props('outline').classes('w-full text-gray-300').style(
                 'border-color: #374151;'
             )
+    
+    def _open_provider_settings(self):
+        """Open provider settings dialog"""
+        from .provider_settings_dialog import ProviderSettingsDialog
+        dialog = ProviderSettingsDialog()
+        dialog.show()
     
     def _open_api_keys_dialog(self):
         """Open API keys configuration dialog"""
