@@ -83,13 +83,20 @@ class OpenAIProvider(BaseLLMProvider):
             for msg in messages
         ]
         
-        stream = await self.client.chat.completions.create(
-            model=model_id,
-            messages=openai_messages,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stream=True
-        )
+        # Prepare request arguments
+        kwargs = {
+            "model": model_id,
+            "messages": openai_messages,
+            "max_tokens": max_tokens,
+            "stream": True
+        }
+        
+        # O1 and reasoning models do not support temperature
+        is_reasoning_model = any(x in model_id for x in ["o1-", "search-", "reasoning"])
+        if not is_reasoning_model:
+            kwargs["temperature"] = temperature
+        
+        stream = await self.client.chat.completions.create(**kwargs)
         
         async for chunk in stream:
             if chunk.choices[0].delta.content:
