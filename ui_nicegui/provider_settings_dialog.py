@@ -160,18 +160,20 @@ class ProviderSettingsDialog:
             else:
                 value = input_widget.value
             
-            # Save to environment if has env_var
+            # Save to environment if has env_var (API keys)
             if setting_def.get('env_var') and value:
                 os.environ[setting_def['env_var']] = value
                 
-                # Also save to .env file
+                # Also save to .env file (ONLY here, NOT in provider_config.json!)
                 self._update_env_file(setting_def['env_var'], value)
             
-            # Update provider config
-            self.config_manager.update_provider_config(
-                provider_id,
-                {setting_key: value}
-            )
+            # Update provider config ONLY for non-API-key settings
+            # API keys should NEVER be in provider_config.json
+            if setting_key != 'api_key':
+                self.config_manager.update_provider_config(
+                    provider_id,
+                    {setting_key: value}
+                )
         
         ui.notify('Provider settings saved! Restart app to apply changes.', type='positive')
         self.dialog.close()

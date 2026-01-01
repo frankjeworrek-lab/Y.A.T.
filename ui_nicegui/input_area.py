@@ -28,17 +28,23 @@ class InputArea:
                     'padding: 12px;'
                 )
                 
-                # Bind Enter key
-                self.text_input.on('keydown', self._handle_keydown)
+                # Bind Enter key with proper on_keydown syntax
+                self.text_input.on('keydown.enter', lambda: self._handle_submit_wrapper())
                 
                 # Send button with gradient
                 self.send_button = ui.button(
                     icon='send',
-                    on_click=self._handle_submit
+                    on_click=lambda: self._handle_submit_wrapper()
                 ).props('round').classes('shadow-lg').style(
                     'background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);'
                     'width: 48px; height: 48px;'
                 )
+    
+    def _handle_submit_wrapper(self):
+        """Wrapper to handle sync-to-async conversion"""
+        import asyncio
+        asyncio.create_task(self._handle_submit())
+
     
     async def _handle_keydown(self, e):
         """Handle keyboard events"""
