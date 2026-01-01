@@ -152,11 +152,9 @@ class APIKeyDialog:
         
         # HOT-RELOAD: Re-initialize providers immediately!
         if self.llm_manager:
-            ui.notify('Reloading providers...', type='info')
+            print("🔄 Reloading providers...")
             await self._reload_providers()
-            ui.notify('✓ API Keys saved & providers reloaded!', type='positive')
-        else:
-            ui.notify('API Keys saved! Restart app to apply changes.', type='positive')
+            print("✓ API Keys saved & providers reloaded!")
         
         self.dialog.close()
     
