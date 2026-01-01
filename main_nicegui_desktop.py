@@ -69,10 +69,13 @@ async def initialize_providers():
     if enabled_providers:
         default_provider = enabled_providers[0]
         llm_manager.active_provider_id = default_provider.id
-        models = await llm_manager.get_provider_models(default_provider.id)
-        if models:
-            llm_manager.active_model_id = models[0].id
-            print(f"\n✓ Default: {default_provider.name} / {models[0].name}")
+        # Get models from the provider instance
+        provider_instance = llm_manager.providers.get(default_provider.id)
+        if provider_instance:
+            models = await provider_instance.get_available_models()
+            if models:
+                llm_manager.active_model_id = models[0].id
+                print(f"\n✓ Default: {default_provider.name} / {models[0].name}")
     
     print("✓ Plugin-based providers initialized successfully\n")
 
