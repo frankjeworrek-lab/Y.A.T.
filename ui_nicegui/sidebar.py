@@ -159,10 +159,15 @@ class Sidebar:
     
     async def load_models(self):
         """Load and populate model dropdown"""
-        # FIX: Only load models for the ACTIVE provider.
         # This prevents the dropdown from implicitly switching providers 
         # just because the active one has no models (error state).
         models = await self.llm_manager.get_available_models()
+        
+        # Mirror Logic from main.py: If we got models, the provider is ACTIVE.
+        active_p = self.llm_manager.providers.get(self.llm_manager.active_provider_id)
+        if active_p and models:
+            active_p.config.status = 'active'
+            active_p.config.init_error = None
         
         options = {}
         for m in models:
@@ -182,7 +187,7 @@ class Sidebar:
             
             self.provider_status_label.text = f'Active: {provider_name}'
             api_status = active_provider.config.status
-            print(f"DEBUG Sidebar: Active={provider_name}, Error={active_provider.config.init_error}, Status={api_status}")
+            print(f">>> DEBUG Sidebar REFRESH: Provider='{provider_name}', Status='{api_status}', InitError='{active_provider.config.init_error}'")
             
             if has_error:
                 self.provider_status_icon.name = 'error'
@@ -203,11 +208,12 @@ class Sidebar:
                 self.provider_status_label.text = f'{provider_name} (Setup needed)'
                 self.provider_status_label.classes('text-orange-400', remove='text-gray-300')
             
-            else: # 'configured' or unknown -> Grey (Ready but unverified)
-                self.provider_status_icon.name = 'radio_button_unchecked'
-                self.provider_status_icon.props('color=grey')
-                self.provider_status_icon.classes('text-gray-500', remove='text-green-400 text-red-500 text-orange-400')
-                self.provider_status_label.classes('text-gray-300', remove='text-red-400 text-orange-400')
+            else: # 'configured' or unknown -> RED (Strict policy: If not active -> Error)
+                self.provider_status_icon.name = 'error_outline'
+                self.provider_status_icon.props('color=red')
+                self.provider_status_icon.classes('text-red-400', remove='text-green-400 text-orange-400 text-gray-500')
+                self.provider_status_label.text = 'No Active Provider'
+                self.provider_status_label.classes('text-red-400', remove='text-gray-300 text-orange-400')
         else:
             # No provider selected -> Warn the user!
             self.provider_status_label.text = 'No Active Provider'

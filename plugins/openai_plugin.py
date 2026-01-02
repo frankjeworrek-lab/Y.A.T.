@@ -21,8 +21,23 @@ class OpenAIProvider(BaseLLMProvider):
     
     async def initialize(self):
         """Initialize OpenAI client"""
-        self.api_key = os.getenv('OPENAI_API_KEY')
+        # Reset state on re-init
+        self.config.init_error = None
+        self._model_cache = []
         
+        # Close old client if exists
+        if self.client:
+            try:
+                await self.client.close()
+            except Exception:
+                pass
+        
+        self.api_key = os.getenv('OPENAI_API_KEY')
+        if self.api_key:
+            self.api_key = self.api_key.strip()
+            print(f"  [DEBUG] OpenAI Re-Init Key: {self.api_key[:8]}... (Len: {len(self.api_key)})")
+        else:
+             print("  [DEBUG] OpenAI Re-Init: No Key found in env!")
         
         try:
             from openai import AsyncOpenAI
@@ -52,6 +67,7 @@ class OpenAIProvider(BaseLLMProvider):
         try:
             print("  [WAIT] Fetching OpenAI models from API...")
             response = await self.client.models.list()
+            print(f"  [DEBUG] Validating {len(response.data)} raw models from API...")
             
             # Filter and process models
             models = []

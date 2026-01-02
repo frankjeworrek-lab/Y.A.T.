@@ -157,11 +157,18 @@ class ProviderSettingsDialog:
             status_text = "ERROR"
             status_color = "red"
             status_icon = "error"
-        # 2. If healthy, check if Active
+        # 2. If healthy, check if Active (Selected)
         elif is_active:
-            status_text = "ACTIVE"
-            status_color = "green"
-            status_icon = "check_circle"
+            if provider.status == 'active':
+                status_text = "ACTIVE"
+                status_color = "green"
+                status_icon = "check_circle"
+            else:
+                # Selected but not verified yet (or check failed but not error)
+                status_text = "SELECTED" 
+                status_color = "grey"
+                status_icon = "radio_button_checked"
+
         # 3. Healthy but inactive
         else:
             status_text = "READY"
@@ -331,7 +338,9 @@ class ProviderSettingsDialog:
         # Re-initialize all providers to pick up new/removed API keys
         if self.llm_manager:
             import asyncio
+            import asyncio
             async def reinit_sequence():
+                print(">>> DEBUG: reinit_sequence STARTED")
                 # 1. Re-initialize ACTIVE provider first
                 active_pid = self.llm_manager.active_provider_id
                 if active_pid and active_pid in self.llm_manager.providers:
@@ -362,8 +371,10 @@ class ProviderSettingsDialog:
                                 print(f'✓ Activated model: {models[0].name}')
                             else:
                                 print(f'✓ Kept active model: {self.llm_manager.active_model_id}')
-                            # Clear any previous error if success
+                            
+                            # Success! Set status to active immediately.
                             provider_instance.config.init_error = None
+                            provider_instance.config.status = 'active'
                         except Exception as e:
                              print(f'✗ Error loading models for new provider: {e}')
                              # Propagate error to provider config so Sidebar shows it
