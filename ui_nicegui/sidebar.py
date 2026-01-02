@@ -21,7 +21,7 @@ class Sidebar:
     def build(self):
         """Build the sidebar UI with professional dark theme"""
         with ui.column().classes('w-72 h-screen p-5 gap-4').style(
-            'background: linear-gradient(180deg, #1a1d29 0%, #0f1117 100%); border-right: 1px solid #2d3748;'
+            'background-color: var(--bg-secondary); border-right: 1px solid var(--border-color);'
         ):
             # Header with gradient
             with ui.row().classes('w-full items-center gap-3 pb-4'):
@@ -40,7 +40,7 @@ class Sidebar:
                 
                 # Active Provider Status Badge
                 with ui.row().classes('w-full items-center gap-2 mb-2 px-3 py-2').style(
-                    'background-color: #1f2937; border-radius: 6px; border: 1px solid #374151;'
+                    'background-color: var(--bg-accent); border-radius: 6px; border: 1px solid var(--border-color);'
                 ):
                     self.provider_status_icon = ui.icon('circle', size='xs').classes('text-green-400')
                     self.provider_status_label = ui.label('Active: Loading...').classes('text-xs text-gray-300')
@@ -51,7 +51,7 @@ class Sidebar:
                     label='Select Model',
                     on_change=self._handle_model_change
                 ).classes('w-full').props('outlined dense dark bg-color="grey-9" label-color="grey-4"').style(
-                    'background-color: #1f2937; border-color: #374151;'
+                    'background-color: var(--bg-accent); border-color: var(--border-color);'
                 )
             
             # Status Container (for errors)
@@ -75,22 +75,22 @@ class Sidebar:
         
             ui.separator().classes('bg-gray-700 mt-2')
             
-            # Provider Settings Button (Anchored at bottom sibling)
+            # Preferences Button (Unified)
             ui.button(
-                'Manage Providers',
-                icon='settings',
-                on_click=self._open_provider_settings
+                'Preferences',
+                icon='tune',
+                on_click=lambda: self._open_settings()
             ).props('outline').classes('w-full text-gray-300 mb-2').style(
-                'border-color: #374151;'
+                'border-color: var(--border-color); color: var(--text-primary);'
             )
             
-
+ 
     
-    def _open_provider_settings(self):
-        """Open provider settings dialog"""
+    def _open_settings(self, tab='providers'):
+        """Open settings dialog with specific tab"""
         from .provider_settings_dialog import ProviderSettingsDialog
         dialog = ProviderSettingsDialog(llm_manager=self.llm_manager, sidebar=self)
-        dialog.show()
+        dialog.show(initial_tab=tab)
     
 
 
@@ -234,15 +234,15 @@ class Sidebar:
                 for conv in conversations:
                     conv_id = conv['id']
                     with ui.card().classes('w-full p-3 cursor-pointer transition-all').style(
-                        'background-color: #1f2937; border: 1px solid #374151;'
+                        'background-color: var(--bg-secondary); border: 1px solid var(--border-color);'
                         'transition: all 0.2s ease;'
                     ).on('click', lambda cid=conv_id: self._handle_load_chat(cid)):
                         # Add hover effect via inline style
                         ui.add_head_html("""
                         <style>
                         .nicegui-content .q-card:hover {
-                            background-color: #2d3748 !important;
-                            border-color: #4299e1 !important;
+                            background-color: var(--bg-accent) !important;
+                            border-color: var(--accent-color) !important;
                         }
                         </style>
                         """)

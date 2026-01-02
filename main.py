@@ -147,6 +147,23 @@ async def main_page():
     
     # FORCE NO SCROLLBARS on the main window
     ui.add_head_html('<style>body { overflow: hidden !important; }</style>')
+    
+    # THEME ENGINE: Default CSS Variables
+    ui.add_head_html('''
+    <style>
+    :root {
+        --bg-primary: #0f1117;
+        --bg-secondary: #1f2937;
+        --bg-accent: #111827;
+        --border-color: #374151;
+        --text-primary: #e5e7eb;
+        --text-secondary: #9ca3af;
+        --accent-color: #4299e1;
+        --success-color: #4ade80;
+        --error-color: #f87171;
+    }
+    </style>
+    ''')
 
     # Ensure providers are initialized
     await initialize_providers()

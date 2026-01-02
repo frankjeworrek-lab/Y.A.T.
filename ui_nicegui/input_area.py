@@ -15,15 +15,15 @@ class InputArea:
     def build(self):
         """Build the input area UI with professional styling"""
         with ui.card().classes('w-full m-4 p-3 shadow-xl').style(
-            'background-color: #1f2937; border: 1px solid #374151; border-radius: 20px;'
+            'background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px;'
         ):
             with ui.row().classes('w-full gap-3 items-center'):
                 self.text_input = ui.input(
                     placeholder='Type your message...'
                 ).classes('flex-1').props('outlined dense dark standout').style(
-                    'background-color: #111827;'
+                    'background-color: var(--bg-accent);'
                     'border-radius: 12px;'
-                    'color: #e5e7eb;'
+                    'color: var(--text-primary);'
                     'font-size: 14px;'
                     'padding: 12px;'
                 )
@@ -36,7 +36,7 @@ class InputArea:
                     icon='send',
                     on_click=lambda: self._handle_submit_wrapper()
                 ).props('round').classes('shadow-lg').style(
-                    'background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);'
+                    'background: var(--accent-color);'
                     'width: 48px; height: 48px;'
                 )
     

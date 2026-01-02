@@ -15,7 +15,7 @@ class ChatView:
         """Build the chat view UI with professional dark theme"""
         # Main container with scroll area
         with ui.scroll_area().classes('flex-1 p-6').style(
-            'background: linear-gradient(180deg, #0f1117 0%, #1a1d29 100%);'
+            'background-color: var(--bg-primary);'
         ) as scroll:
             self.scroll_area = scroll
             
@@ -43,15 +43,15 @@ class ChatView:
                 if not is_user:
                     # AI Avatar (left side) with gradient
                     with ui.avatar().style(
-                        'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);'
+                        'background-color: var(--bg-secondary); border: 1px solid var(--border-color);'
                     ):
                         ui.icon('auto_awesome', size='sm', color='white')
                 
                 # Message bubble with modern design
                 bubble_bg = (
-                    'background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);'
+                    'background-color: var(--accent-color);'
                     if is_user else
-                    'background-color: #1f2937; border: 1px solid #374151;'
+                    'background-color: var(--bg-secondary); border: 1px solid var(--border-color);'
                 )
                 
                 with ui.card().classes('max-w-2xl p-4 shadow-lg').style(
@@ -60,7 +60,7 @@ class ChatView:
                     msg_element = ui.markdown(message.content).classes(
                         'prose prose-invert max-w-none'
                     ).style(
-                        'color: white;' if is_user else 'color: #e5e7eb;'
+                        'color: white;' if is_user else 'color: var(--text-primary);'
                     )
                     self.message_rows.append({
                         'element': msg_element,
@@ -69,7 +69,7 @@ class ChatView:
                 
                 if is_user:
                     # User Avatar (right side)
-                    with ui.avatar().style('background-color: #3b82f6;'):
+                    with ui.avatar().style('background-color: var(--accent-color);'):
                         ui.icon('person', size='sm', color='white')
         
         # Auto-scroll to bottom

@@ -40,7 +40,7 @@ class AppLayout:
         
     def build(self):
         """Build the main application layout with dark theme"""
-        with ui.row().classes('w-full h-screen').style('background-color: #0f1117; margin: 0; padding: 0;'):
+        with ui.row().classes('w-full h-screen').style('background-color: var(--bg-primary); margin: 0; padding: 0;'):
             # Sidebar
             self.sidebar.build()
             

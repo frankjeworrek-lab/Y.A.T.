@@ -17,39 +17,100 @@ class ProviderSettingsDialog:
         self.provider_inputs = {}
         self.pending_active_provider = None  # Staged change until Save
         
-    def show(self):
-        """Show the provider settings dialog"""
-        # Sync pending state with actual active provider
+    def show(self, initial_tab='providers'):
+        """Show the unified settings dialog"""
         if self.llm_manager:
             self.pending_active_provider = self.llm_manager.active_provider_id
             
-        with ui.dialog() as self.dialog, ui.card().classes('w-full max-w-4xl p-6').style(
-            'background-color: #1f2937; border: 1px solid #374151; max-height: 80vh; overflow-y: auto;'
+        with ui.dialog() as self.dialog, ui.card().classes('w-full max-w-4xl h-[85vh] p-0 flex flex-col overflow-hidden').style(
+            'background-color: var(--bg-secondary); border: 1px solid var(--border-color);'
         ):
-            # Header
-            with ui.row().classes('w-full items-center justify-between mb-4'):
-                with ui.row().classes('items-center gap-3'):
-                    ui.icon('settings', size='lg').classes('text-blue-400')
-                    ui.label('Provider Management').classes('text-2xl font-bold text-white')
-                ui.button(icon='close', on_click=self.dialog.close).props('flat round').classes('text-gray-400')
+            # 1. FIXED HEADER
+            with ui.column().classes('w-full p-6 pb-0 shrink-0 gap-0'):
+                # Title & Close
+                with ui.row().classes('w-full items-center justify-between mb-2'):
+                    ui.label('Preferences').classes('text-2xl font-bold text-white')
+                    ui.button(icon='close', on_click=self.dialog.close).props('flat round').classes('text-gray-400')
+                
+                # Helper for Theme Application
+                def apply_theme(theme_vars):
+                    js = ""
+                    for k, v in theme_vars.items():
+                        js += f"document.documentElement.style.setProperty('{k}', '{v}');"
+                    ui.run_javascript(js)
+                
+                # Tabs
+                with ui.tabs().classes('w-full text-gray-400') as tabs:
+                    provider_tab = ui.tab('AI Providers', icon='smart_toy')
+                    appearance_tab = ui.tab('Appearance', icon='palette')
+                    
+                # Set initial tab
+                if initial_tab == 'appearance':
+                    tabs.set_value(appearance_tab)
+                else:
+                    tabs.set_value(provider_tab)
+                
+                ui.separator().classes('bg-gray-700 mt-0')
             
-            ui.separator().classes('bg-gray-700 mb-4')
+            # 2. SCROLLABLE CONTENT (Flex-1)
+            with ui.tab_panels(tabs, value=provider_tab if initial_tab != 'appearance' else appearance_tab, animated=False).classes(
+                'w-full flex-1 overflow-y-auto min-h-0 bg-transparent p-6'
+            ):
+                
+                # --- TAB 1: PROVIDERS ---
+                with ui.tab_panel(provider_tab).classes('p-0'):
+                    ui.label('Configure AI providers & API keys').classes('text-sm text-gray-400 mb-4')
+                    self.provider_list_container = ui.column().classes('w-full')
+                    self._render_provider_list()
+                    # Spacer logic is handled by footer padding
+
+                # --- TAB 2: APPEARANCE ---
+                with ui.tab_panel(appearance_tab).classes('p-0'):
+                    # 1. UI Scaling
+                    ui.label('Interface Scale').classes('text-lg font-bold text-white mt-2')
+                    with ui.row().classes('w-full items-center gap-4 mb-6'):
+                        ui.icon('text_fields', size='sm').classes('text-gray-400')
+                        ui.slider(min=12, max=20, step=1, value=16, 
+                            on_change=lambda e: ui.run_javascript(f'document.documentElement.style.fontSize = "{e.value}px"')
+                        ).props('label-always color=blue').classes('flex-1')
+                        ui.icon('text_fields', size='lg').classes('text-gray-400')
+
+                    ui.separator().classes('bg-gray-700 mb-4')
+
+                    # 2. Themes Grid
+                    ui.label('Theme Collection').classes('text-lg font-bold text-white mb-4')
+                    themes = {
+                        'Midnight Pro': {'--bg-primary': '#000000', '--bg-secondary': '#0a0a0a', '--bg-accent': '#141414', '--border-color': '#333333', '--text-primary': '#ffffff', '--text-secondary': '#888888', '--accent-color': '#e0e0e0'},
+                        'Nordic Frost': {'--bg-primary': '#242933', '--bg-secondary': '#2e3440', '--bg-accent': '#3b4252', '--border-color': '#4c566a', '--text-primary': '#eceff4', '--text-secondary': '#d8dee9', '--accent-color': '#88c0d0'},
+                        'Cyberpunk Neon': {'--bg-primary': '#0d0221', '--bg-secondary': '#1a0b2e', '--bg-accent': '#261447', '--border-color': '#ff00ff', '--text-primary': '#00fff5', '--text-secondary': '#b8b8b8', '--accent-color': '#ff00ff'},
+                        'Retro Terminal': {'--bg-primary': '#0d1117', '--bg-secondary': '#161b22', '--bg-accent': '#21262d', '--border-color': '#30363d', '--text-primary': '#39d353', '--text-secondary': '#8b949e', '--accent-color': '#238636'},
+                        'Dracula': {'--bg-primary': '#282a36', '--bg-secondary': '#44475a', '--bg-accent': '#6272a4', '--border-color': '#bd93f9', '--text-primary': '#f8f8f2', '--text-secondary': '#6272a4', '--accent-color': '#ff79c6'}
+                    }
+                    with ui.grid(columns=2).classes('w-full gap-4'):
+                        for name, colors in themes.items():
+                            with ui.card().classes('cursor-pointer hover:scale-105 transition-transform').style(
+                                f'background-color: {colors["--bg-secondary"]}; border: 1px solid {colors["--border-color"]};'
+                            ).on('click', lambda c=colors: apply_theme(c)):
+                                with ui.row().classes('items-center gap-2'):
+                                    ui.element('div').style(f'width: 20px; height: 20px; border-radius: 50%; background-color: {colors["--accent-color"]}')
+                                    ui.label(name).style(f'color: {colors["--text-primary"]}')
             
-            # Info text
-            ui.label('Configure and manage AI providers').classes('text-sm text-gray-400 mb-4')
-            
-            # Provider List Container (refreshable)
-            self.provider_list_container = ui.column().classes('w-full')
-            self._render_provider_list()
-            
-            ui.separator().classes('bg-gray-700 my-4')
-            
-            # Buttons
-            with ui.row().classes('w-full justify-end gap-3'):
+            # 3. FIXED FOOTER (Only for Providers)
+            with ui.row().classes('w-full p-6 pt-4 shrink-0 bg-transparent justify-end gap-3') as footer_row:
+                ui.separator().classes('bg-gray-700 mb-4 w-full')
                 ui.button('Cancel', on_click=self.dialog.close).props('outline').classes('text-gray-300')
-                ui.button('Save & Apply', icon='save', on_click=self._save_settings).style(
+                ui.button('Save Changes', icon='save', on_click=self._save_settings).style(
                     'background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);'
                 )
+            
+            # Logic to show footer only on Provider tab
+            def update_footer(e):
+                # e.value is the selected tab object
+                footer_row.visible = (e.value == provider_tab)
+            
+            tabs.on_value_change(update_footer)
+            # Set initial state
+            footer_row.visible = (tabs.value == provider_tab)
         
         self.dialog.open()
         
@@ -91,7 +152,7 @@ class ProviderSettingsDialog:
             status_icon = "radio_button_unchecked"
         
         with ui.card().props(f'id=provider-{provider.id}').classes('w-full mb-4 p-4').style(
-            'background-color: #111827; border: 1px solid #374151;'
+            'background-color: var(--bg-accent); border: 1px solid var(--border-color);'
         ):
             # Header row
             with ui.row().classes('w-full items-center justify-between mb-3'):
