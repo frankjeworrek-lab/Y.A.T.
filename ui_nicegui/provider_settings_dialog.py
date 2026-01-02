@@ -88,18 +88,14 @@ class ProviderSettingsDialog:
             # Header row
             with ui.row().classes('w-full items-center justify-between mb-3'):
                 with ui.row().classes('items-center gap-3'):
-                    # Radio button for activation (only if key exists)
-                    if has_key:
-                        # Visual radio indicator
-                        if is_active:
-                            ui.icon('radio_button_checked', size='sm').classes('text-green-400')
-                        else:
-                            ui.button(
-                                icon='radio_button_unchecked',
-                                on_click=lambda pid=provider.id: self._activate_provider(pid)
-                            ).props('flat dense round').classes('text-gray-500 hover:text-blue-400')
+                    # Radio button for activation (always clickable - validation on click)
+                    if is_active:
+                        ui.icon('radio_button_checked', size='sm').classes('text-green-400')
                     else:
-                        ui.icon('radio_button_unchecked', size='sm').classes('text-gray-700').tooltip('Add API key first')
+                        ui.button(
+                            icon='radio_button_unchecked',
+                            on_click=lambda pid=provider.id: self._activate_provider(pid)
+                        ).props('flat dense round').classes('text-gray-500 hover:text-blue-400')
                     
                     # Icon
                     ui.icon(provider.icon, size='md').classes(f'text-{provider.color}-400')
@@ -169,6 +165,24 @@ class ProviderSettingsDialog:
         """Activate a provider and select its first model"""
         if not self.llm_manager:
             return
+        
+        # Check if API key exists (either in env or in current input)
+        provider_config = self.config_manager.get_provider(provider_id)
+        if provider_config:
+            api_key_setting = next((s for s in provider_config.settings if s['key'] == 'api_key'), None)
+            if api_key_setting and api_key_setting.get('env_var'):
+                # Check env first
+                has_key = bool(os.getenv(api_key_setting['env_var']))
+                
+                # If not in env, check if user just entered it in the form
+                if not has_key:
+                    input_key = f"{provider_id}_api_key"
+                    if input_key in self.provider_inputs:
+                        has_key = bool(self.provider_inputs[input_key].value)
+                
+                if not has_key:
+                    ui.notify('⚠️ Please save API key first, then activate!', type='warning', position='top')
+                    return
         
         # Get provider instance
         provider_instance = self.llm_manager.providers.get(provider_id)
