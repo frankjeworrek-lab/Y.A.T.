@@ -96,9 +96,70 @@ class ProviderConfigManager:
         return "active"
     
     def _create_default_config(self):
-        """Create default provider config file with empty structure"""
+        """Create default provider config file with standard providers"""
         default_data = {
-            'providers': []
+            'providers': [
+                {
+                    "id": "google",
+                    "name": "Google Gemini",
+                    "type": "cloud",
+                    "icon": "google",
+                    "color": "#4285F4",
+                    "enabled": True,
+                    "config": {
+                        "api_key_env": "GOOGLE_API_KEY"
+                    },
+                    "settings": [
+                        {
+                            "key": "api_key_env",
+                            "label": "API Key Environment Variable",
+                            "type": "text",
+                            "default": "GOOGLE_API_KEY",
+                            "env_var": "GOOGLE_API_KEY"
+                        }
+                    ]
+                },
+                {
+                    "id": "anthropic",
+                    "name": "Anthropic Claude",
+                    "type": "cloud",
+                    "icon": "smart_toy",
+                    "color": "#D97757",
+                    "enabled": True,
+                    "config": {
+                        "api_key_env": "ANTHROPIC_API_KEY"
+                    },
+                    "settings": [
+                        {
+                            "key": "api_key_env",
+                            "label": "API Key Environment Variable",
+                            "type": "text",
+                            "default": "ANTHROPIC_API_KEY",
+                            "env_var": "ANTHROPIC_API_KEY"
+                        }
+                    ]
+                },
+                {
+                    "id": "openai",
+                    "name": "OpenAI GPT",
+                    "type": "cloud",
+                    "icon": "bolt",
+                    "color": "#10A37F",
+                    "enabled": True,
+                    "config": {
+                        "api_key_env": "OPENAI_API_KEY"
+                    },
+                    "settings": [
+                        {
+                            "key": "api_key_env",
+                            "label": "API Key Environment Variable",
+                            "type": "text",
+                            "default": "OPENAI_API_KEY",
+                            "env_var": "OPENAI_API_KEY"
+                        }
+                    ]
+                }
+            ]
         }
         # Ensure directory exists (just in case)
         self.config_file.parent.mkdir(parents=True, exist_ok=True)
