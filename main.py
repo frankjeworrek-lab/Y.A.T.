@@ -1,12 +1,16 @@
 """
-KI Chat Pattern - NiceGUI Desktop Version
-Main entry point for the NiceGUI implementation
+KI Chat Pattern - NiceGUI Application
+Unified launcher supporting both Desktop (native window) and Web (browser) modes.
+
+Usage:
+    python main.py          # Desktop mode (default, native window via PyWebView)
+    python main.py --web    # Web mode (opens in browser)
 """
 import asyncio
+import argparse
 from dotenv import load_dotenv
 from nicegui import ui, app
 from core.llm_manager import LLMManager
-from core.providers.mock_provider import MockProvider
 from core.providers.types import ProviderConfig
 from ui_nicegui.app_layout import AppLayout
 
@@ -25,7 +29,6 @@ async def initialize_providers():
     
     from core.plugin_loader import PluginLoader
     from core.provider_config_manager import ProviderConfigManager
-    from core.providers.types import ProviderConfig
     
     llm_manager = LLMManager()
     
@@ -78,6 +81,8 @@ async def initialize_providers():
             if models:
                 llm_manager.active_model_id = models[0].id
                 print(f"\n✓ Default: {default_provider.name} / {models[0].name}")
+    
+    print("✓ Plugin-based providers initialized successfully\n")
 
 
 @ui.page('/')
@@ -94,28 +99,9 @@ async def main_page():
     await app_layout.initialize_async()
 
 
-if __name__ in {"__main__", "__mp_main__"}:
-    # NiceGUI Desktop Mode Options:
-    # 
-    # Option 1: Browser-based (current, easiest)
-    # - Opens in default browser automatically
-    # - Full NiceGUI features
-    # - Easy to develop and debug
-    
-    # Option 2: Native window with PyWebView
-    # - Install: pip install nicegui[native]
-    # - Uncomment below section
-    # - Comment out ui.run() section
-    
-    # from nicegui import native
-    # native.start_server_and_native_window(
-    #     main_page,
-    #     window_title='KI Chat Pattern',
-    #     width=1200,
-    #     height=800,
-    # )
-    
-    # Current: Browser-based (auto-opens in browser)
+def start_web_mode():
+    """Start in Web/Browser mode"""
+    print("🌐 Starting KI Chat Pattern (Web Mode)...")
     ui.run(
         title='KI Chat Pattern',
         dark=True,
@@ -124,3 +110,69 @@ if __name__ in {"__main__", "__mp_main__"}:
         port=8080,
         binding_refresh_interval=0.1,
     )
+
+
+def start_desktop_mode():
+    """Start in Desktop mode with native window"""
+    import webview
+    import threading
+    import time
+    
+    print("🚀 Starting KI Chat Pattern (Desktop Mode)...")
+    
+    def start_nicegui_server():
+        """Start NiceGUI server in background thread"""
+        ui.run(
+            title='KI Chat Pattern',
+            dark=True,
+            reload=False,
+            show=False,  # Don't open browser - PyWebView will handle display
+            port=8080,
+            binding_refresh_interval=0.1,
+        )
+    
+    # Start NiceGUI server in separate thread
+    server_thread = threading.Thread(target=start_nicegui_server, daemon=True)
+    server_thread.start()
+    
+    # Wait for server to be ready
+    time.sleep(2)
+    
+    # Create native desktop window with PyWebView
+    print("🪟 Creating desktop window...")
+    webview.create_window(
+        title='KI Chat Pattern',
+        url='http://localhost:8080',
+        width=1200,
+        height=800,
+        resizable=True,
+        fullscreen=False,
+        min_size=(800, 600),
+        background_color='#1E1E1E',
+        text_select=True,
+    )
+    
+    # Start PyWebView (blocks until window is closed)
+    webview.start(debug=False)
+    
+    print("👋 Desktop app closed")
+
+
+if __name__ in {"__main__", "__mp_main__"}:
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(
+        description='KI Chat Pattern - AI Chat Application'
+    )
+    parser.add_argument(
+        '--web',
+        action='store_true',
+        help='Run in web mode (browser) instead of desktop mode (default)'
+    )
+    
+    args = parser.parse_args()
+    
+    # Launch appropriate mode
+    if args.web:
+        start_web_mode()
+    else:
+        start_desktop_mode()
