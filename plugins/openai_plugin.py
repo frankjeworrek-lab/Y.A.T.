@@ -117,11 +117,30 @@ class OpenAIProvider(BaseLLMProvider):
         if not self.client:
             raise RuntimeError("Provider not initialized")
         
-        # Convert messages to OpenAI format
+        # Prepare System Context (Time, Date, OS)
+        import datetime
+        import platform
+        
+        now = datetime.datetime.now()
+        system_context = (
+            f"Current Date: {now.strftime('%A, %B %d, %Y')}\n"
+            f"Current Time: {now.strftime('%H:%M:%S')}\n"
+            f"Operating System: {platform.system()} {platform.release()}\n"
+            f"User Environment: Desktop App (NiceGUI)\n"
+            "You are a helpful, professional AI assistant."
+        )
+        
+        # Convert messages to OpenAI format and prepend System Context
         openai_messages = [
-            {"role": msg.role.value, "content": msg.content}
-            for msg in messages
+            {"role": "system", "content": system_context}
         ]
+        
+        for msg in messages:
+            # Check if there is already a system message, if so append to context
+            if msg.role.value == "system":
+                openai_messages[0]["content"] += f"\n\n{msg.content}"
+            else:
+                openai_messages.append({"role": msg.role.value, "content": msg.content})
         
         # Prepare request arguments - authentic behavior
         # Only pass parameters if explicitly provided, else use OpenAI defaults
