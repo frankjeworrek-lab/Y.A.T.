@@ -26,18 +26,33 @@ jobs:
         pip install pyinstaller pillow
 
     - name: Generate Windows Icon (.ico)
-      # One-liner to convert PNG to ICO using Pillow
+      shell: bash
       run: |
         python -c "from PIL import Image; img = Image.open('logo/dock.png'); img.save('logo.ico', sizes=[(256,256), (128,128), (64,64), (48,48), (32,32), (16,16)])"
 
     - name: Build with PyInstaller
-      # Using single line to avoid PowerShell syntax ambiguity
+      shell: bash
       run: |
-        pyinstaller main.py --name "YAT" --windowed --icon "logo.ico" --add-data "logo;logo" --add-data "ui_nicegui;ui_nicegui" --add-data "core;core" --add-data "plugins;plugins" --add-data "storage;storage" --add-data ".env.example;.env" --add-data "docs;docs" --collect-all nicegui --collect-all webview --clean --noconfirm
+        pyinstaller main.py \
+          --name "YAT" \
+          --windowed \
+          --icon "logo.ico" \
+          --add-data "logo;logo" \
+          --add-data "ui_nicegui;ui_nicegui" \
+          --add-data "core;core" \
+          --add-data "plugins;plugins" \
+          --add-data "storage;storage" \
+          --add-data ".env.example;.env" \
+          --add-data "docs;docs" \
+          --collect-all nicegui \
+          --collect-all webview \
+          --distpath ./dist \
+          --clean \
+          --noconfirm
 
     - name: Debug - List files
-      run: dir -r
-      continue-on-error: true
+      shell: bash
+      run: ls -R dist || echo "Dist not found"
 
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
