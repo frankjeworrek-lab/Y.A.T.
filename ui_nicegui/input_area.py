@@ -14,8 +14,8 @@ class InputArea:
         
     def build(self):
         """Build the input area UI with professional styling"""
-        with ui.card().classes('w-full m-4 p-3 shadow-xl').style(
-            'background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px;'
+        with ui.card().classes('mx-4 mb-4 p-3 shadow-xl').style(
+            'width: calc(100% - 2rem); background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px;'
         ):
             with ui.row().classes('w-full gap-3 items-center'):
                 self.text_input = ui.input(
