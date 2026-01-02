@@ -181,14 +181,14 @@ class Sidebar:
             has_error = bool(active_provider.config.init_error)
             
             self.provider_status_label.text = f'Active: {provider_name}'
-            print(f"DEBUG Sidebar: Active={provider_name}, Error={active_provider.config.init_error}, Status={active_provider.status}")
+            print(f"DEBUG Sidebar: Active={provider_name}, Error={active_provider.config.init_error}, Status={active_provider.config.status}")
             
             if has_error:
                 self.provider_status_icon.name = 'error'
                 self.provider_status_icon.props('color=red')
                 self.provider_status_icon.classes('text-red-500', remove='text-green-400 text-orange-400')
                 self.provider_status_label.classes('text-red-400', remove='text-gray-300')
-            elif active_provider.status == 'error': # Missing Key
+            elif active_provider.config.status == 'error': # Missing Key (FIXED: access via .config)
                 self.provider_status_icon.name = 'warning'
                 self.provider_status_icon.props('color=orange')
                 self.provider_status_icon.classes('text-orange-400', remove='text-green-400 text-red-500')
