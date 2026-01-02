@@ -38,6 +38,13 @@ class Sidebar:
                         'flat dense size=sm'
                     ).classes('text-gray-400 hover:text-blue-400')
                 
+                # Active Provider Status Badge
+                with ui.row().classes('w-full items-center gap-2 mb-2 px-3 py-2').style(
+                    'background-color: #1f2937; border-radius: 6px; border: 1px solid #374151;'
+                ):
+                    self.provider_status_icon = ui.icon('circle', size='xs').classes('text-green-400')
+                    self.provider_status_label = ui.label('Active: Loading...').classes('text-xs text-gray-300')
+                
                 # Model Dropdown with custom styling
                 self.model_select = ui.select(
                     options={},
@@ -136,6 +143,20 @@ class Sidebar:
             options[key] = text
         
         self.model_select.options = options
+        
+        # Update Active Provider Status Badge
+        active_provider = self.llm_manager.providers.get(self.llm_manager.active_provider_id)
+        if active_provider:
+            provider_name = active_provider.config.name
+            has_error = bool(active_provider.config.init_error)
+            
+            self.provider_status_label.text = f'Active: {provider_name}'
+            if has_error:
+                self.provider_status_icon.props('color=red')
+                self.provider_status_icon.classes('text-red-400', remove='text-green-400')
+            else:
+                self.provider_status_icon.props('color=green')
+                self.provider_status_icon.classes('text-green-400', remove='text-red-400')
         
         # Check for provider errors (only show for ACTIVE provider)
         self.status_container.clear()
