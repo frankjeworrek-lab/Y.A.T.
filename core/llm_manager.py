@@ -10,9 +10,6 @@ class LLMManager:
     
     def register_provider(self, provider_id: str, provider: BaseLLMProvider):
         self.providers[provider_id] = provider
-        # Auto-select first provider if none selected
-        if not self.active_provider_id:
-            self.active_provider_id = provider_id
 
     async def get_all_models(self) -> List[ModelInfo]:
         all_models = []
