@@ -129,12 +129,29 @@ Every plugin needs these 3 methods:
 ### **1. `initialize()`**
 ```python
 async def initialize(self):
-    """Called once on app startup"""
+    """
+    Called on app startup AND when settings change.
+    CRITICAL: You must handle re-initialization robustly!
+    """
+    # 1. Reset Error State (Crucial for recovery)
+    self.config.init_error = None
+    
+    # 2. Close old client (Avoid leaks)
+    if self.client:
+        try: await self.client.close()
+        except: pass
+        
+    # 3. Load & Sanitize Key
     self.api_key = os.getenv('YOUR_API_KEY')
+    if self.api_key:
+        self.api_key = self.api_key.strip()
+        
     if not self.api_key:
         self.config.init_error = "API key missing"
         return
-    # Create API client, etc.
+        
+    # 4. Create new client
+    # self.client = ...
 ```
 
 ### **2. `get_available_models()`**
@@ -203,12 +220,21 @@ from core.providers.types import Message, ProviderConfig, ModelInfo
 
 class CohereProvider(BaseLLMProvider):
     async def initialize(self):
+        # 1. Reset & Clean
+        self.config.init_error = None
+        if self.client:
+             try: await self.client.close()
+             except: pass
+             
+        # 2. Key
         self.api_key = os.getenv('COHERE_API_KEY')
         if not self.api_key:
             self.config.init_error = "COHERE_API_KEY not set"
             return
+        
+        # 3. Client
         from cohere import AsyncClient
-        self.client = AsyncClient(api_key=self.api_key)
+        self.client = AsyncClient(api_key=self.api_key.strip())
     
     async def get_available_models(self) -> list[ModelInfo]:
         return [

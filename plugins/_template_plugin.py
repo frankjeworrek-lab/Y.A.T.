@@ -38,14 +38,28 @@ class TemplateProvider(BaseLLMProvider):
         """
         Initialize your provider
         
-        This is called once on app startup. Use it to:
-        - Load API keys from environment
+        This is called once on app startup AND when settings are changed.
+        Use it to:
+        - Reset error state (CRITICAL for re-init)
+        - Close old clients (Resource management)
+        - Load API keys from environment (with sanitization)
         - Create API client instances
-        - CRITICAL: Perform a real API call (e.g. list_models or ping) to verify the key!
-        - Set self.config.init_error if something fails
         """
-        # Example: Load API key
+        # 1. Reset state (CRITICAL: Fixes Stale Error Bug)
+        self.config.init_error = None
+        
+        # 2. Close old client if exists (Resource Management)
+        if self.client:
+            try:
+                # await self.client.close() 
+                pass 
+            except Exception:
+                pass
+        
+        # 3. Load & Sanitize Key
         self.api_key = os.getenv('YOUR_PROVIDER_API_KEY')
+        if self.api_key:
+            self.api_key = self.api_key.strip() # Remove copy-paste whitespace
         
         try:
             # TODO: Initialize your client here

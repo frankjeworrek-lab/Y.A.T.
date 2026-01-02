@@ -15,6 +15,14 @@ class OllamaProvider(BaseLLMProvider):
         self.base_url = "http://localhost:11434/v1"
 
     async def initialize(self):
+        # Reset state
+        self.config.init_error = None
+        
+        # Close old client
+        if self.client:
+           try: await self.client.close()
+           except: pass
+
         # Override Base URL from config if set
         if self.config.base_url:
             self.base_url = self.config.base_url + "/v1" # Ensure /v1

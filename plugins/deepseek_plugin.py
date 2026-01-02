@@ -14,10 +14,20 @@ class DeepSeekProvider(BaseLLMProvider):
         self.client = None
 
     async def initialize(self):
+        # Reset state
+        self.config.init_error = None
+        
+        # Close old client
+        if self.client:
+           try: await self.client.close()
+           except: pass
+
         api_key = os.getenv('DEEPSEEK_API_KEY')
         if not api_key:
             self.config.init_error = "DEEPSEEK_API_KEY not found"
             return
+        
+        api_key = api_key.strip()
 
         try:
             self.client = AsyncOpenAI(

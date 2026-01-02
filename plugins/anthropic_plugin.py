@@ -18,7 +18,20 @@ class AnthropicProvider(BaseLLMProvider):
     
     async def initialize(self):
         """Initialize Anthropic client"""
+        # Reset state
+        self.config.init_error = None
+        self._model_cache = []
+        
+        # Close old client
+        if self.client:
+            try:
+                await self.client.close()
+            except Exception:
+                pass
+
         self.api_key = os.getenv('ANTHROPIC_API_KEY')
+        if self.api_key:
+            self.api_key = self.api_key.strip()
         
         try:
             from anthropic import AsyncAnthropic

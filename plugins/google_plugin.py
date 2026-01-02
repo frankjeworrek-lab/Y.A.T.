@@ -20,8 +20,12 @@ class GoogleProvider(BaseLLMProvider):
     
     async def initialize(self):
         """Initialize Google GenAI client"""
-        self.api_key = os.getenv('GOOGLE_API_KEY')
+        # Reset state matches
+        self.config.init_error = None
         
+        self.api_key = os.getenv('GOOGLE_API_KEY')
+        if self.api_key:
+            self.api_key = self.api_key.strip()
         
         try:
             genai.configure(api_key=self.api_key)
