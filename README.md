@@ -1,20 +1,40 @@
-# KI Chat Pattern (NiceGUI Edition)
+# Y.A.T. (Yet Another Talk)
 
-A professional, extensible AI Chat application built with **Python**, **NiceGUI**, and **PyWebView**.
+> **Version 2.0** — *The "Refined Flow" Update*
 
-## 🌟 Features
+Y.A.T. is a premium, distraction-free AI terminal designed for "Deep Work" and fluid dialogue. Built with **Python**, **NiceGUI**, and **PyWebView**, it combines the power of a terminal with the aesthetics of a modern web app.
 
-- **Dual-Mode Architecture**:
-  - 🌐 **Browser Mode**: Develop and run in your favorite browser.
-  - 🖥️ **Desktop Mode**: Native window experience using PyWebView.
-- **True Plugin System**:
-  - 🔌 **Auto-Discovery**: Drop `.py` files in `plugins/` to add providers.
-  - 🧩 **Extensible**: Add any LLM provider (OpenAI, Anthropic, Ollama, etc.).
-  - 🔄 **Hot-Reload**: Change API keys and configs without restarting.
-- **Professional UI**:
-  - 🎨 **Dark Theme**: Modern, high-contrast design.
-  - 💬 **Rich Chat**: Markdown support, code highlighting, streams.
-  - ⚙️ **GUI Configuration**: Manage keys and providers visually.
+---
+
+## 🌟 Key Features (v2.0)
+
+### 🎨 Premium Aesthetics & Theming
+- **Dynamic Theme Engine**: Switch instantly between 5 curated themes:
+  - 🌙 *Midnight Pro* (Default)
+  - ❄️ *Nordic Frost*
+  - 🔮 *Cyberpunk Neon*
+  - 📟 *Retro Terminal*
+  - 🧛 *Dracula*
+- **UI Scaling**: Adjustable interface density via settings slider (12px - 20px base size).
+- **Glassmorphic Design**: Modern, clean visuals with reduced distraction.
+
+### 🧠 Multi-Provider Intelligence
+- **True Plugin System**: Drop `.py` files in `plugins/` to add new models.
+- **Supported Providers**:
+  - 🟢 **OpenAI** (GPT-4o, etc.)
+  - 🟣 **Anthropic** (Claude 3.5 Sonnet, Opus)
+  - 🔵 **Google** (Gemini Pro)
+- **Hot-Swapping**: Switch active models instantly without context loss.
+
+### ⚙️ Unified Preferences
+- **Centralized Control**: Manage API Keys, Active Models, and Appearance in one dialog.
+- **Robust Configuration**: Settings persist `provider_config.json` and `.env` (secrets).
+
+### 📐 Dual-Mode Architecture
+- 🖥️ **Desktop Mode**: Runs as a standalone native app window (via PyWebView).
+- 🌐 **Web Mode**: Runs in your browser for remote access or debugging.
+
+---
 
 ## 🚀 Quick Start
 
@@ -23,50 +43,55 @@ A professional, extensible AI Chat application built with **Python**, **NiceGUI*
 pip install -r requirements.txt
 ```
 
-### 2. Run Application
-**Desktop Mode (Native Window):**
-```bash
-python main_nicegui_desktop.py
+### 2. Setup
+Create a `.env` file for your keys (optional, can also be set in UI):
+```properties
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_API_KEY=...
 ```
 
-**Browser Mode:**
+### 3. Launch
+**Standard Desktop Mode (Recommended):**
 ```bash
-python main_nicegui.py
+python main.py
 ```
 
-## ⚙️ Configuration
+**Web / Browser Mode:**
+```bash
+python main.py --web
+```
 
-### Managing Providers
-1. Click **"Manage Providers"** in the sidebar.
-2. Toggle providers (OpenAI, Anthropic, Mock) ON/OFF.
-3. Edit provider-specific settings.
+---
 
-### API Keys
-1. Click **"Configure API Keys"** in the sidebar.
-2. Enter your keys (stored securely in `.env`).
-3. **Hot-Reload**: Keys apply immediately – no restart needed!
+## 🧩 How to Use
 
-## 🧩 Plugin System
+### The "Preferences" Center
+Click the **Preferences** button (Slider Icon) in the sidebar footer to:
+1.  **AI Providers Tab**: Enable/Disable providers and enter API Keys.
+2.  **Appearance Tab**: Select your favorite theme and adjust text size.
 
-The app uses a strict plugin architecture. Providers are **not** hardcoded.
+### Plugin System
+Providers are located in `plugins/`. The system auto-discovers them at startup.
+To add a new LLM, simply duplicate `plugins/_template_plugin.py` and implement the interface.
 
-- **Location**: `plugins/` directory.
-- **Create New**: Copy `plugins/_template_plugin.py`.
-- **Logic**: Plugins are auto-discovered at startup. Only enabled plugins are loaded.
-
---> [📖 Read the Plugin Documentation](docs/PLUGIN_SYSTEM.md)
+---
 
 ## 📁 Project Structure
 
 ```
 ki_chat_pattern_nicegui/
-├── main_nicegui_desktop.py # Native Desktop Launcher
-├── main_nicegui.py         # Browser Launcher
+├── main.py                 # Unified Entry Point (Desktop & Web)
 ├── plugins/                # LLM Provider Plugins
 │   ├── openai_plugin.py
-│   └── ...
-├── core/                   # Core Logic (Managers)
-├── ui_nicegui/             # User Interface Components
-├── provider_config.json    # Provider Configuration
-└── .env                    # Secrets (Git-ignored)
+│   ├── anthropic_plugin.py
+│   └── google_plugin.py
+├── ui_nicegui/             # UI Components (Sidebar, Chat, Settings)
+├── core/                   # Logic Managers (LLM, Config)
+├── storage/                # Chat History Database
+├── logo/                   # Branding Assets
+└── .env                    # Secrets Storage
 ```
+
+---
+*Architected for Flow.*
