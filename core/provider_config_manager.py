@@ -116,7 +116,10 @@ class ProviderConfigManager:
         # Check if API key is set (for cloud providers)
         if provider.type == "cloud":
             api_key_env = provider.config.get('api_key_env')
-            if api_key_env and not os.getenv(api_key_env):
+            has_key = bool(os.getenv(api_key_env)) if api_key_env else False
+            print(f"[DEBUG] Status Check {provider.id}: EnvVar={api_key_env}, HasKey={has_key}")
+            
+            if api_key_env and not has_key:
                 return "error"
         
         return "active"

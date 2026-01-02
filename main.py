@@ -81,7 +81,13 @@ async def initialize_providers():
             # Use default config if not in provider_config.json
             provider_config_obj = ProviderConfig(name=plugin_name)
         else:
-            provider_config_obj = ProviderConfig(name=provider_config.name)
+            # Transfer config details from Manager (Dataclass) to Plugin (Pydantic)
+            provider_config_obj = ProviderConfig(
+                name=provider_config.name,
+                status=provider_config.status,
+                base_url=provider_config.config.get('base_url'),
+                api_key=os.getenv(provider_config.config.get('api_key_env', '')) if provider_config.type == 'cloud' else None
+            )
         
         # Create and initialize provider instance
         try:

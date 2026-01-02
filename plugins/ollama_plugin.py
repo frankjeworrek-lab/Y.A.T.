@@ -16,8 +16,8 @@ class OllamaProvider(BaseLLMProvider):
 
     async def initialize(self):
         # Override Base URL from config if set
-        if self.config.config.get('base_url'):
-            self.base_url = self.config.config.get('base_url') + "/v1" # Ensure /v1
+        if self.config.base_url:
+            self.base_url = self.config.base_url + "/v1" # Ensure /v1
             # Strip double /v1 if user added it
             if self.base_url.endswith("/v1/v1"):
                 self.base_url = self.base_url[:-3]
