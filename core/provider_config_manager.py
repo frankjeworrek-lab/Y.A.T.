@@ -52,15 +52,41 @@ class ProviderConfigManager:
             # Create default config
             self._create_default_config()
         
-        with open(self.config_file, 'r') as f:
-            data = json.load(f)
+        try:
+            with open(self.config_file, 'r') as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, ValueError):
+            # Corrupt file, recreate defaults
+            self._create_default_config()
+            with open(self.config_file, 'r') as f:
+                data = json.load(f)
         
+        existing_ids = {p.get('id') for p in data.get('providers', [])}
+        
+        # SELF-HEALING: If standard providers are missing, add them!
+        defaults = self._get_default_providers_data()
+        modified = False
+        
+        # Ensure 'providers' list exists
+        if 'providers' not in data:
+            data['providers'] = []
+            
+        for default_provider in defaults['providers']:
+            if default_provider['id'] not in existing_ids:
+                print(f"🔧 Auto-Repair: Adding missing provider '{default_provider['id']}'")
+                data['providers'].append(default_provider)
+                modified = True
+        
+        if modified:
+            with open(self.config_file, 'w') as f:
+                json.dump(data, f, indent=2)
+                
         for provider_data in data.get('providers', []):
             provider = ProviderConfig(**provider_data)
             # Update status based on environment
             provider.status = self._check_provider_status(provider)
             self.providers[provider.id] = provider
-    
+
     def save_config(self):
         """Save provider configurations to JSON file"""
         data = {
@@ -94,10 +120,10 @@ class ProviderConfigManager:
                 return "error"
         
         return "active"
-    
-    def _create_default_config(self):
-        """Create default provider config file with standard providers"""
-        default_data = {
+
+    def _get_default_providers_data(self):
+        """Return the dictionary of standard default providers"""
+        return {
             'providers': [
                 {
                     "id": "google",
@@ -158,9 +184,92 @@ class ProviderConfigManager:
                             "env_var": "OPENAI_API_KEY"
                         }
                     ]
+                },
+                {
+                    "id": "ollama",
+                    "name": "Ollama (Local)",
+                    "type": "local",
+                    "icon": "laptop_mac",
+                    "color": "#000000",
+                    "enabled": True,
+                    "config": {
+                        "base_url": "http://localhost:11434"
+                    },
+                    "settings": [
+                        {
+                            "key": "base_url",
+                            "label": "Base URL",
+                            "type": "text",
+                            "default": "http://localhost:11434",
+                        }
+                    ]
+                },
+                {
+                    "id": "groq",
+                    "name": "Groq",
+                    "type": "cloud",
+                    "icon": "speed",
+                    "color": "#f55036",
+                    "enabled": True,
+                    "config": {
+                        "api_key_env": "GROQ_API_KEY"
+                    },
+                    "settings": [
+                        {
+                            "key": "api_key_env",
+                            "label": "API Key Environment Variable",
+                            "type": "text",
+                            "default": "GROQ_API_KEY",
+                            "env_var": "GROQ_API_KEY"
+                        }
+                    ]
+                },
+                {
+                    "id": "mistral",
+                    "name": "Mistral AI",
+                    "type": "cloud",
+                    "icon": "wind_power",
+                    "color": "#fd6f00",
+                    "enabled": True,
+                    "config": {
+                        "api_key_env": "MISTRAL_API_KEY"
+                    },
+                    "settings": [
+                        {
+                            "key": "api_key_env",
+                            "label": "API Key Environment Variable",
+                            "type": "text",
+                            "default": "MISTRAL_API_KEY",
+                            "env_var": "MISTRAL_API_KEY"
+                        }
+                    ]
+                },
+                {
+                    "id": "deepseek",
+                    "name": "DeepSeek",
+                    "type": "cloud",
+                    "icon": "search",
+                    "color": "#4d6bfe",
+                    "enabled": True,
+                    "config": {
+                        "api_key_env": "DEEPSEEK_API_KEY"
+                    },
+                    "settings": [
+                        {
+                            "key": "api_key_env",
+                            "label": "API Key Environment Variable",
+                            "type": "text",
+                            "default": "DEEPSEEK_API_KEY",
+                            "env_var": "DEEPSEEK_API_KEY"
+                        }
+                    ]
                 }
             ]
         }
+    
+    def _create_default_config(self):
+        """Create default provider config file with standard providers"""
+        default_data = self._get_default_providers_data()
         # Ensure directory exists (just in case)
         self.config_file.parent.mkdir(parents=True, exist_ok=True)
         
