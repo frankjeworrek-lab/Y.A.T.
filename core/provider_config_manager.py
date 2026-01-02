@@ -105,6 +105,7 @@ class ProviderConfigManager:
         
         with open(self.config_file, 'w') as f:
             json.dump(default_data, f, indent=2)
+    def get_provider(self, provider_id: str) -> Optional[ProviderConfig]:
         """Get provider configuration by ID"""
         return self.providers.get(provider_id)
     
