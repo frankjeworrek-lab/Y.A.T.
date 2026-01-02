@@ -96,11 +96,15 @@ class ProviderConfigManager:
         return "active"
     
     def _create_default_config(self):
-        """Create default provider config file"""
-        # This will be created by the initial write_to_file call
-        pass
-    
-    def get_provider(self, provider_id: str) -> Optional[ProviderConfig]:
+        """Create default provider config file with empty structure"""
+        default_data = {
+            'providers': []
+        }
+        # Ensure directory exists (just in case)
+        self.config_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(self.config_file, 'w') as f:
+            json.dump(default_data, f, indent=2)
         """Get provider configuration by ID"""
         return self.providers.get(provider_id)
     
