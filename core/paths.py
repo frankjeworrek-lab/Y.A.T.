@@ -16,9 +16,9 @@ def ensure_data_dir():
     if not USER_DATA_DIR.exists():
         try:
             USER_DATA_DIR.mkdir(parents=True, exist_ok=True)
-            print(f"📁 Created user data directory: {USER_DATA_DIR}")
+            print(f"[OK] Created user data directory: {USER_DATA_DIR}")
         except Exception as e:
-            print(f"❌ Failed to create data directory {USER_DATA_DIR}: {e}")
+            print(f"[ERR] Failed to create data directory {USER_DATA_DIR}: {e}")
 
 def resolve_resource_path(relative_path: str) -> str:
     """

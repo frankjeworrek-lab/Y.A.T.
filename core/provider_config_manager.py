@@ -73,7 +73,7 @@ class ProviderConfigManager:
             
         for default_provider in defaults['providers']:
             if default_provider['id'] not in existing_ids:
-                print(f"🔧 Auto-Repair: Adding missing provider '{default_provider['id']}'")
+                print(f"[FIX] Auto-Repair: Adding missing provider '{default_provider['id']}'")
                 data['providers'].append(default_provider)
                 modified = True
         

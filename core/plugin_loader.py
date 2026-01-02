@@ -23,7 +23,7 @@ class PluginLoader:
         """Discover all Python files in the plugins directory"""
         if not self.plugins_dir.exists():
             self.plugins_dir.mkdir(parents=True, exist_ok=True)
-            print(f"✓ Created plugins directory: {self.plugins_dir}")
+            print(f"[OK] Created plugins directory: {self.plugins_dir}")
             return []
         
         plugin_files = []
@@ -70,26 +70,26 @@ class PluginLoader:
                 return None
             
             self.loaded_plugins[plugin_name] = provider_class
-            print(f"✓ Loaded plugin: {plugin_name} ({provider_class.__name__})")
+            print(f"[OK] Loaded plugin: {plugin_name} ({provider_class.__name__})")
             return provider_class
             
         except Exception as e:
             self.plugin_errors[plugin_name] = f"Error loading plugin: {str(e)}"
-            print(f"✗ Failed to load plugin '{plugin_name}': {e}")
+            print(f"[ERR] Failed to load plugin '{plugin_name}': {e}")
             return None
     
     def load_all_plugins(self) -> Dict[str, Type[BaseLLMProvider]]:
         """Discover and load all plugins"""
         plugin_names = self.discover_plugins()
         
-        print(f"\n🔌 Discovering plugins in: {self.plugins_dir}")
+        print(f"\n[SCAN] Discovering plugins in: {self.plugins_dir}")
         print(f"Found {len(plugin_names)} plugin(s): {', '.join(plugin_names) if plugin_names else 'none'}")
         
         for plugin_name in plugin_names:
             self.load_plugin(plugin_name)
         
         if self.plugin_errors:
-            print(f"\n⚠️  {len(self.plugin_errors)} plugin(s) failed to load")
+            print(f"\n[WARN] {len(self.plugin_errors)} plugin(s) failed to load")
             for name, error in self.plugin_errors.items():
                 print(f"  - {name}: {error}")
         

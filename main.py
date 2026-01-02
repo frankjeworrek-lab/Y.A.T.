@@ -64,7 +64,7 @@ async def initialize_providers():
     plugin_loader = PluginLoader(plugins_dir=resolve_path("plugins"))
     plugins = plugin_loader.load_all_plugins()
     
-    print(f"\n🔌 Plugin System: Loaded {len(plugins)} plugin(s)")
+    print(f"\n[PLUGIN] Loaded {len(plugins)} plugin(s)")
     
     # Register each loaded plugin
     for plugin_name, provider_class in plugins.items():
@@ -74,7 +74,7 @@ async def initialize_providers():
         
         # SKIP if provider is disabled in config
         if provider_config and not provider_config.enabled:
-            print(f"  ⊘ Skipped: {provider_id} (disabled in config)")
+            print(f"  [-] Skipped: {provider_id} (disabled in config)")
             continue
         
         if not provider_config:
@@ -91,9 +91,9 @@ async def initialize_providers():
             # Register with LLMManager
             llm_manager.register_provider(provider_id, provider_instance)
             
-            print(f"  ✓ Registered: {provider_id}")
+            print(f"  [+] Registered: {provider_id}")
         except Exception as e:
-            print(f"  ✗ Failed to register {plugin_name}: {e}")
+            print(f"  [X] Failed to register {plugin_name}: {e}")
     
     # Set intelligent defaults
     # Set intelligent defaults
@@ -149,7 +149,7 @@ async def initialize_providers():
                     llm_manager.active_model_id = target_model_id
                 else:
                     llm_manager.active_model_id = models[0].id
-                print(f"✓ Active Model: {llm_manager.active_model_id}")
+                print(f"[OK] Active Model: {llm_manager.active_model_id}")
                 
                 # Clear error if success
                 provider_instance.config.init_error = None
@@ -160,9 +160,7 @@ async def initialize_providers():
                 print(f"  Confirming active provider '{active_provider_id}' despite model fetch error: {e}")
                 provider_instance.config.init_error = error_msg
     
-    print("✓ Plugin-based providers initialized successfully\n")
-    
-    print("✓ Plugin-based providers initialized successfully\n")
+    print("[OK] Plugin-based providers initialized successfully\n")
 
 
 @ui.page('/', title='Y.A.T.')
@@ -204,7 +202,7 @@ async def main_page():
 
 def start_web_mode():
     """Start in Web/Browser mode"""
-    print("🌐 Starting Y.A.T. (Web Mode)...")
+    print("[*] Starting Y.A.T. (Web Mode)...")
     ui.run(
         title='Y.A.T.',
         dark=True,
@@ -221,7 +219,7 @@ def start_desktop_mode():
     import threading
     import time
     
-    print("🚀 Starting Y.A.T. (Desktop Mode)...")
+    print("[*] Starting Y.A.T. (Desktop Mode)...")
     print("   Architect: Frank Jeworrek")
     
     def start_nicegui_server():
@@ -244,7 +242,7 @@ def start_desktop_mode():
     time.sleep(2)
     
     # Create native desktop window with PyWebView
-    print("🪟 Creating desktop window...")
+    print("[*] Creating desktop window...")
     webview.create_window(
         title='Y.A.T.',
         url='http://localhost:8080',
@@ -260,7 +258,7 @@ def start_desktop_mode():
     # Start PyWebView (blocks until window is closed)
     webview.start(debug=False)
     
-    print("👋 Desktop app closed")
+    print("[*] Desktop app closed")
 
 
 if __name__ in {"__main__", "__mp_main__"}:
