@@ -133,7 +133,10 @@ class Sidebar:
     
     async def load_models(self):
         """Load and populate model dropdown"""
-        models = await self.llm_manager.get_all_models()
+        # FIX: Only load models for the ACTIVE provider.
+        # This prevents the dropdown from implicitly switching providers 
+        # just because the active one has no models (error state).
+        models = await self.llm_manager.get_available_models()
         
         options = {}
         for m in models:

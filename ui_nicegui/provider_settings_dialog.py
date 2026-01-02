@@ -19,6 +19,10 @@ class ProviderSettingsDialog:
         
     def show(self):
         """Show the provider settings dialog"""
+        # Sync pending state with actual active provider
+        if self.llm_manager:
+            self.pending_active_provider = self.llm_manager.active_provider_id
+            
         with ui.dialog() as self.dialog, ui.card().classes('w-full max-w-4xl p-6').style(
             'background-color: #1f2937; border: 1px solid #374151; max-height: 80vh; overflow-y: auto;'
         ):
@@ -48,6 +52,14 @@ class ProviderSettingsDialog:
                 )
         
         self.dialog.open()
+        
+        # Auto-scroll to active provider
+        if self.llm_manager and self.llm_manager.active_provider_id:
+            active_id = self.llm_manager.active_provider_id
+            # Small delay to ensure dialog DOM is rendered
+            ui.timer(0.1, lambda: ui.run_javascript(
+                f'document.getElementById("provider-{active_id}")?.scrollIntoView({{behavior: "smooth", block: "center"}})'
+            ), once=True)
     
     def _render_provider_list(self):
         """Render provider cards (can be called to refresh)"""
@@ -78,7 +90,7 @@ class ProviderSettingsDialog:
             status_color = "grey"
             status_icon = "radio_button_unchecked"
         
-        with ui.card().classes('w-full mb-4 p-4').style(
+        with ui.card().props(f'id=provider-{provider.id}').classes('w-full mb-4 p-4').style(
             'background-color: #111827; border: 1px solid #374151;'
         ):
             # Header row

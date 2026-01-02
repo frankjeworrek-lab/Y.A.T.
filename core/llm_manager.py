@@ -27,6 +27,22 @@ class LLMManager:
                     print(f"Error fetching models from {provider.config.name}: {e}")
         return all_models
 
+    async def get_available_models(self) -> List[ModelInfo]:
+        """Fetch models only from the currently active provider"""
+        if not self.active_provider_id or self.active_provider_id not in self.providers:
+            return []
+            
+        provider = self.providers[self.active_provider_id]
+        try:
+            models = await provider.get_models()
+            for m in models:
+                m.provider_id = self.active_provider_id
+            return models
+        except Exception as e:
+            # Let the UI handle the empty list/error state
+            print(f"Error fetching models from active provider {provider.config.name}: {e}")
+            return []
+
     async def stream_chat(self, message_history: List[Message], provider_id: str = None, model_id: str = None):
         pid = provider_id or self.active_provider_id
         mid = model_id or self.active_model_id
