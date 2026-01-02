@@ -241,7 +241,7 @@ class ProviderSettingsDialog:
                     # Refresh Sidebar immediately after active provider init
                     # This updates the "Active: ..." badge and error status
                     if self.sidebar:
-                        self.sidebar.load_models()
+                        await self.sidebar.load_models()
                 
                 # 2. Other providers (background)
                 for pid, provider in self.llm_manager.providers.items():
