@@ -54,10 +54,10 @@ class TemplateProvider(BaseLLMProvider):
             # TODO: Add a real Health Check here!
             # await self.client.models.list()  # <--- This forces the API to validate the key immediately
             
-            print(f"✓ {self.config.name} initialized")
+            print(f"[OK] {self.config.name} initialized")
         except Exception as e:
             self.config.init_error = f"Failed to initialize: {str(e)}"
-            print(f"✗ Your Provider initialization failed: {e}")
+            print(f"[ERR] Your Provider initialization failed: {e}")
     
     async def get_available_models(self) -> list[ModelInfo]:
         """

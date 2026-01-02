@@ -27,7 +27,7 @@ class OllamaProvider(BaseLLMProvider):
                 base_url=self.base_url,
                 api_key="ollama" # not required but needed by client
             )
-            print(f"✓ Ollama initialized at {self.base_url}")
+            print(f"[OK] Ollama initialized at {self.base_url}")
         except Exception as e:
             self.config.init_error = str(e)
 
@@ -37,7 +37,7 @@ class OllamaProvider(BaseLLMProvider):
     async def get_models(self) -> list[ModelInfo]:
         if not self.client: return []
         try:
-            print(f"  ↻ Fetching Ollama models from {self.base_url}...")
+            print(f"  [WAIT] Fetching Ollama models from {self.base_url}...")
             response = await self.client.models.list()
             models = []
             for m in response.data:
@@ -50,7 +50,7 @@ class OllamaProvider(BaseLLMProvider):
                 ))
             return models
         except Exception as e:
-            print(f"  ✗ Ollama fetch failed: {e}")
+            print(f"  [ERR] Ollama fetch failed: {e}")
             raise e
 
     async def stream_chat(self, model_id: str, messages: list[Message], temperature=0.7, max_tokens=2000) -> AsyncIterator[str]:

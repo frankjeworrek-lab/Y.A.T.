@@ -24,7 +24,7 @@ class MistralProvider(BaseLLMProvider):
                 base_url="https://api.mistral.ai/v1",
                 api_key=api_key
             )
-            print(f"✓ Mistral initialized")
+            print(f"[OK] Mistral initialized")
         except Exception as e:
             self.config.init_error = str(e)
 
@@ -48,7 +48,7 @@ class MistralProvider(BaseLLMProvider):
                     ))
             return models
         except Exception as e:
-            print(f"  ✗ Mistral fetch failed: {e}")
+            print(f"  [ERR] Mistral fetch failed: {e}")
             raise e
 
     async def stream_chat(self, model_id: str, messages: list[Message], temperature=0.7, max_tokens=2000) -> AsyncIterator[str]:

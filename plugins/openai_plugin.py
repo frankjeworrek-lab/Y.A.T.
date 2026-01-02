@@ -27,10 +27,10 @@ class OpenAIProvider(BaseLLMProvider):
         try:
             from openai import AsyncOpenAI
             self.client = AsyncOpenAI(api_key=self.api_key)
-            print(f"✓ OpenAI Provider initialized")
+            print(f"[OK] OpenAI Provider initialized")
         except Exception as e:
             self.config.init_error = f"Failed to initialize: {str(e)}"
-            print(f"✗ OpenAI initialization failed: {e}")
+            print(f"[ERR] OpenAI initialization failed: {e}")
     
     async def check_health(self) -> bool:
         """Check if provider is healthy"""
@@ -50,7 +50,7 @@ class OpenAIProvider(BaseLLMProvider):
             return self._model_cache
             
         try:
-            print("  ↻ Fetching OpenAI models from API...")
+            print("  [WAIT] Fetching OpenAI models from API...")
             response = await self.client.models.list()
             
             # Filter and process models
@@ -92,11 +92,11 @@ class OpenAIProvider(BaseLLMProvider):
             ))
             
             self._model_cache = models
-            print(f"  ✓ Fetched {len(models)} OpenAI models")
+            print(f"  [OK] Fetched {len(models)} OpenAI models")
             return models
             
         except Exception as e:
-            print(f"  ✗ Failed to fetch models: {e}")
+            print(f"  [ERR] Failed to fetch models: {e}")
             raise e # Re-raise to trigger error handling in UI logic
     
     async def stream_chat(

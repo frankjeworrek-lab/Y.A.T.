@@ -24,7 +24,7 @@ class DeepSeekProvider(BaseLLMProvider):
                 base_url="https://api.deepseek.com/v1",
                 api_key=api_key
             )
-            print(f"✓ DeepSeek initialized")
+            print(f"[OK] DeepSeek initialized")
         except Exception as e:
             self.config.init_error = str(e)
 
@@ -47,7 +47,7 @@ class DeepSeekProvider(BaseLLMProvider):
                 ))
             return models
         except Exception as e:
-            print(f"  ✗ DeepSeek fetch failed: {e}")
+            print(f"  [ERR] DeepSeek fetch failed: {e}")
             raise e
 
     async def stream_chat(self, model_id: str, messages: list[Message], temperature=0.7, max_tokens=2000) -> AsyncIterator[str]:

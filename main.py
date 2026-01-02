@@ -111,13 +111,13 @@ async def initialize_providers():
          # No checks for enabled status. No checks for successful init.
          # You save what you get.
          active_provider_id = saved_active_provider
-         print(f"✓ Config: Leaning on saved provider '{active_provider_id}'")
+         print(f"[OK] Config: Leaning on saved provider '{active_provider_id}'")
     
     elif enabled_providers:
         # CASE B: First run / No config. 
         # USER REQUEST: No fallbacks. The user sees the truth (nothing selected).
         # active_provider_id = enabled_providers[0].id
-        print(f"✓ Config: No saved provider. Starting with NONE.")
+        print(f"[OK] Config: No saved provider. Starting with NONE.")
         active_provider_id = None
         
     # 2. Set the Active Provider in Manager

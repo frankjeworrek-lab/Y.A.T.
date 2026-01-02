@@ -23,10 +23,10 @@ class AnthropicProvider(BaseLLMProvider):
         try:
             from anthropic import AsyncAnthropic
             self.client = AsyncAnthropic(api_key=self.api_key)
-            print(f"✓ Anthropic Provider initialized")
+            print(f"[OK] Anthropic Provider initialized")
         except Exception as e:
             self.config.init_error = f"Failed to initialize: {str(e)}"
-            print(f"✗ Anthropic initialization failed: {e}")
+            print(f"[ERR] Anthropic initialization failed: {e}")
     
     async def check_health(self) -> bool:
         """Check if provider is healthy"""
@@ -42,7 +42,7 @@ class AnthropicProvider(BaseLLMProvider):
             return []
             
         try:
-            print("  ↻ Fetching Anthropic models from API...")
+            print("  [WAIT] Fetching Anthropic models from API...")
             # Real API call to prove key validity
             response = await self.client.models.list()
             
@@ -62,11 +62,11 @@ class AnthropicProvider(BaseLLMProvider):
             if not models:
                  raise ValueError("API returned no models")
                  
-            print(f"  ✓ Fetched {len(models)} Anthropic models")
+            print(f"  [OK] Fetched {len(models)} Anthropic models")
             return models
             
         except Exception as e:
-            print(f"  ✗ Anthropic model fetch failed: {e}")
+            print(f"  [ERR] Anthropic model fetch failed: {e}")
             raise e  # Fail loud -> Red Light
     
     async def stream_chat(

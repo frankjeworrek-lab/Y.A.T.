@@ -25,10 +25,10 @@ class GoogleProvider(BaseLLMProvider):
         
         try:
             genai.configure(api_key=self.api_key)
-            print(f"✓ Google Provider initialized")
+            print(f"[OK] Google Provider initialized")
         except Exception as e:
             self.config.init_error = f"Failed to initialize: {str(e)}"
-            print(f"✗ Google initialization failed: {e}")
+            print(f"[ERR] Google initialization failed: {e}")
     
     async def check_health(self) -> bool:
         """Check if provider is healthy"""
@@ -44,7 +44,7 @@ class GoogleProvider(BaseLLMProvider):
             return []
             
         try:
-            print("  ↻ Fetching Google models from API...")
+            print("  [WAIT] Fetching Google models from API...")
             models = []
             # genai.list_models() returns an iterator
             for m in genai.list_models():
@@ -60,11 +60,11 @@ class GoogleProvider(BaseLLMProvider):
                         supports_streaming=True
                     ))
             
-            print(f"  ✓ Fetched {len(models)} Google models")
+            print(f"  [OK] Fetched {len(models)} Google models")
             return models
             
         except Exception as e:
-            print(f"  ✗ Google model fetch failed: {e}")
+            print(f"  [ERR] Google model fetch failed: {e}")
             raise e  # Propagate error to make status RED
     
     async def stream_chat(
