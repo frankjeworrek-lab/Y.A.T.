@@ -77,6 +77,20 @@ To add a new LLM, simply duplicate `plugins/_template_plugin.py` and implement t
 
 ---
 
+## 📦 Deployment (macOS App)
+
+To turn Y.A.T. into a standalone `Y.A.T.app` with a proper Dock icon:
+
+1.  Ensure you have `logo/dock.png` (App Icon) present.
+2.  Run the build script:
+    ```bash
+    ./build_mac.sh
+    ```
+3.  The app will be generated in `dist/Y.A.T.app`.
+4.  Drag it to your Applications folder.
+
+---
+
 ## 📁 Project Structure
 
 ```

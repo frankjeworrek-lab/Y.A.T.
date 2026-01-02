@@ -25,7 +25,7 @@ class Sidebar:
         ):
             # Header with gradient
             # Header Banner
-            ui.image('/logo/Gemini_Generated_Image_ki82s1ki82s1ki82.png').classes('w-full rounded-xl shadow-md mb-2').tooltip('Y.A.T. v2.1')
+            ui.image('/logo/logo.png').classes('w-full rounded-xl shadow-md mb-2').tooltip('Y.A.T. v2.1')
             
             # Signature
             ui.label('ARCHITECT • FRANK JEWORREK').classes(
