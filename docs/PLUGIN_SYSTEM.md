@@ -2,7 +2,7 @@
 
 ## 🔌 **True Plugin Architecture**
 
-The KI Chat Pattern now features a **true plugin system** where providers are automatically discovered and loaded from the `plugins/` directory.
+The Y.A.T. now features a **true plugin system** where providers are automatically discovered and loaded from the `plugins/` directory.
 
 ---
 

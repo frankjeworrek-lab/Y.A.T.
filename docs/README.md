@@ -1,6 +1,11 @@
-# KI Chat Pattern - Dokumentation
+# Y.A.T. - Dokumentation
 
-Willkommen zur umfassenden Dokumentation für **KI Chat Pattern** – Ihrer professionellen, erweiterbaren AI-Chat-Anwendung.
+Willkommen zur umfassenden Dokumentation für **Y.A.T.** – Ihrer professionellen, erweiterbaren AI-Chat-Anwendung.
+
+> **⚠️ IMPORTANT NOTE FOR v2.0+**
+> Y.A.T. now features an **Auto-Discovery Plugin System**.
+> Old documentation references asking you to edit `main.py` to register providers are **obsolete**.
+> To add a provider, simply drop a plugin file (e.g. `my_provider.py`) into the `plugins/` directory. **Do not edit `main.py`!**
 
 ## 📚 Dokumentationsübersicht
 
@@ -20,7 +25,7 @@ Diese Dokumentation ist in mehrere Bereiche unterteilt, um dir den Einstieg und 
 - Kein Key? Mock-Provider → 30 Sekunden
 - Lokal/Ollama? → 10 Minuten
 
-### 0. [Warum KI Chat Pattern?](./00-why-this-app.md) 💡
+### 0. [Warum Y.A.T.?](./00-why-this-app.md) 💡
 **Lies das zuerst!** - Was ist das hier? Fertiges Produkt oder Template? Was bedeutet "erweiterbar"?
 - Vollständige App vs. Pattern-Gerüst
 - Vergleich mit Alternativen
@@ -82,7 +87,7 @@ Diese Dokumentation ist in mehrere Bereiche unterteilt, um dir den Einstieg und 
 ## 🚀 Wo solltest du anfangen?
 
 - **Neu hier & hast API-Key?** → Starte mit [⚡ Quick Start](./00-quick-start.md) (2 Minuten!)
-- **Was ist das hier?** → Lies [Warum KI Chat Pattern?](./00-why-this-app.md)
+- **Was ist das hier?** → Lies [Warum Y.A.T.?](./00-why-this-app.md)
 - **Verstehen wie's funktioniert?** → [Schnellstart-Anleitung](./01-getting-started.md)
 - **Provider hinzufügen?** → Gehe direkt zur [Provider-Integration](./03-provider-integration.md)
 - **Problem?** → Schau in die [Fehlerbehandlung](./05-troubleshooting.md)
@@ -117,7 +122,7 @@ Diese Dokumentation ist in mehrere Bereiche unterteilt, um dir den Einstieg und 
 
 **Gleichzeitig:** Professionelle Architektur, die leicht erweiterbar ist.
 
-→ Mehr Details: [Warum KI Chat Pattern?](./00-why-this-app.md)
+→ Mehr Details: [Warum Y.A.T.?](./00-why-this-app.md)
 
 ### "Was bedeutet 'erweiterbar'?"
 
@@ -211,4 +216,4 @@ Kosten-Beispiel:
 
 ---
 
-**Viel Erfolg mit KI Chat Pattern!** 🎉
+**Viel Erfolg mit Y.A.T.!** 🎉

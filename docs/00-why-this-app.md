@@ -1,10 +1,10 @@
-# Warum KI Chat Pattern?
+# Warum Y.A.T.?
 
 **Die wichtigste Frage zuerst beantwortet:** Was ist das hier genau?
 
-## 🎯 Was ist KI Chat Pattern?
+## 🎯 Was ist Y.A.T.?
 
-**KI Chat Pattern ist eine vollständige, produktionsreife Chat-Anwendung** mit einer außergewöhnlich durchdachten Architektur.
+**Y.A.T. ist eine vollständige, produktionsreife Chat-Anwendung** mit einer außergewöhnlich durchdachten Architektur.
 
 ### ✅ Fertige Anwendung
 ```bash
@@ -60,7 +60,7 @@ Die App ist so gebaut, dass du sie **problemlos erweitern** kannst, ohne bestehe
 ⚠️ Kein lokaler Support (Ollama)
 ```
 
-#### Option 3: KI Chat Pattern ✅
+#### Option 3: Y.A.T. ✅
 ```
 ✅ Zeit: Minuten (funktioniert sofort)
 ✅ Fehler: Minimiert (getestete Basis)
@@ -179,7 +179,7 @@ Du könntest 20 neue Provider hinzufügen, ohne eine einzige Zeile in `llm_manag
 
 ## 📊 Vergleichstabelle
 
-| Feature | Andere Apps | Eigenbau | KI Chat Pattern |
+| Feature | Andere Apps | Eigenbau | Y.A.T. |
 |---------|-------------|----------|-----------------|
 | **Funktioniert sofort** | ✅ | ❌ | ✅ |
 | **Mehrere Provider** | ⚠️ Begrenzt | ⚠️ Aufwendig | ✅ |
@@ -379,7 +379,7 @@ Dann lies `docs/06-architecture.md`
 
 ## 🎯 Zusammenfassung
 
-**KI Chat Pattern ist:**
+**Y.A.T. ist:**
 
 ✅ Eine **vollständige, funktionierende** Chat-Anwendung  
 ✅ Mit **professioneller Architektur** (erweiterbar, wartbar)  
@@ -396,7 +396,7 @@ Dann lies `docs/06-architecture.md`
 ---
 
 **TL;DR:** 
-Stell dir vor, jemand hätte eine **komplett fertige** Chat-App gebaut, die sofort läuft, aber so sauber designed, dass neue Features in Minuten statt Tagen hinzugefügt werden können. **Das ist KI Chat Pattern.** 🚀
+Stell dir vor, jemand hätte eine **komplett fertige** Chat-App gebaut, die sofort läuft, aber so sauber designed, dass neue Features in Minuten statt Tagen hinzugefügt werden können. **Das ist Y.A.T..** 🚀
 
 ---
 

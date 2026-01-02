@@ -2,6 +2,12 @@
 
 Dieser Guide zeigt dir **Schritt-für-Schritt**, wie du verschiedene KI-Provider anbindest und nutzt.
 
+> **⚠️ IMPORTANT NOTE FOR v2.0+**
+> Y.A.T. uses an **Auto-Discovery Plugin System**.
+> Sections in this guide asking you to edit `main.py` are **obsolete**.
+> Instead of editing `main.py`, create a new plugin file in `plugins/` (copy `_template_plugin.py`).
+> API Keys are now managed via the **Preferences** dialog in the UI.
+
 ## 🎯 Übersicht
 
 **Was sind Provider?**

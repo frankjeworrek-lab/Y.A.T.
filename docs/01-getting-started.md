@@ -1,6 +1,6 @@
 # Schnellstart-Anleitung
 
-Willkommen bei **KI Chat Pattern**! Diese Anleitung bringt dich in wenigen Minuten zum Laufen.
+Willkommen bei **Y.A.T.**! Diese Anleitung bringt dich in wenigen Minuten zum Laufen.
 
 ## 📋 Voraussetzungen
 
@@ -151,6 +151,6 @@ Jetzt wo die App läuft, empfehlen wir:
 
 ---
 
-**Glückwunsch! 🎉** Du hast KI Chat Pattern erfolgreich gestartet.
+**Glückwunsch! 🎉** Du hast Y.A.T. erfolgreich gestartet.
 
 Bei Fragen: [Troubleshooting](./05-troubleshooting.md) oder [Community-Forum](https://github.com/your-repo/discussions)

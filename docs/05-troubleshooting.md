@@ -1,6 +1,6 @@
 # Fehlerbehandlung & FAQ
 
-Schnelle Lösungen für häufige Probleme bei **KI Chat Pattern**.
+Schnelle Lösungen für häufige Probleme bei **Y.A.T.**.
 
 ## 🔍 Schnelldiagnose
 

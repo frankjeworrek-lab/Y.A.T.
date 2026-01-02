@@ -1,6 +1,6 @@
 # Architektur & Entwicklung
 
-Technische Dokumentation für Entwickler des **KI Chat Pattern (NiceGUI Edition)**.
+Technische Dokumentation für Entwickler des **Y.A.T. (NiceGUI Edition)**.
 
 ## 🏗️ System-Architektur
 

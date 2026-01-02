@@ -1,6 +1,6 @@
 # Konfiguration
 
-Lerne, wie du **KI Chat Pattern** an deine Bedürfnisse anpassen kannst.
+Lerne, wie du **Y.A.T.** an deine Bedürfnisse anpassen kannst.
 
 ## 📁 Konfigurationsdateien
 
@@ -360,7 +360,7 @@ git commit -m "Remove .env from git"
 
 ```bash
 # ============================================
-# KI Chat Pattern - Configuration
+# Y.A.T. - Configuration
 # ============================================
 
 # ---------------------------------------------

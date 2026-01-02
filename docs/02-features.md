@@ -1,6 +1,6 @@
 # Feature-Übersicht
 
-Entdecke alle Funktionen von **KI Chat Pattern** und wie du sie optimal nutzt.
+Entdecke alle Funktionen von **Y.A.T.** und wie du sie optimal nutzt.
 
 ## 🎨 Benutzeroberfläche
 
@@ -385,7 +385,7 @@ Was du sonst noch einfach hinzufügen kannst:
 
 ---
 
-→ Mehr Details: [Warum KI Chat Pattern?](./00-why-this-app.md)
+→ Mehr Details: [Warum Y.A.T.?](./00-why-this-app.md)
 
 ---
 
