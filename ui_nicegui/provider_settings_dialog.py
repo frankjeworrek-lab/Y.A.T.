@@ -90,13 +90,6 @@ class ProviderSettingsDialog:
                 with ui.row().classes('items-center gap-3'):
                     # Radio button for activation (only if key exists)
                     if has_key:
-                        ui.radio(
-                            options=[provider.id],
-                            value=provider.id if is_active else None,
-                            on_change=lambda e, pid=provider.id: self._activate_provider(pid)
-                        ).props('dense').classes('mr-2').style('opacity: 0;').bind_value_to(
-                            self, 'active_provider', forward=lambda v: provider.id if is_active else None
-                        )
                         # Visual radio indicator
                         if is_active:
                             ui.icon('radio_button_checked', size='sm').classes('text-green-400')
