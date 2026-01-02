@@ -41,7 +41,7 @@
       "type": "cloud",
       "icon": "psychology",
       "color": "purple",
-      "enabled": false,
+      "enabled": true,
       "config": {
         "api_key_env": "ANTHROPIC_API_KEY",
         "base_url": "https://api.anthropic.com"
@@ -62,7 +62,7 @@
       "type": "cloud",
       "icon": "smart_toy",
       "color": "blue",
-      "enabled": false,
+      "enabled": true,
       "config": {
         "api_key_env": "GOOGLE_API_KEY"
       },

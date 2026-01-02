@@ -92,7 +92,7 @@ class Sidebar:
     def _open_provider_settings(self):
         """Open provider settings dialog"""
         from .provider_settings_dialog import ProviderSettingsDialog
-        dialog = ProviderSettingsDialog()
+        dialog = ProviderSettingsDialog(llm_manager=self.llm_manager)
         dialog.show()
     
     def _open_api_keys_dialog(self):

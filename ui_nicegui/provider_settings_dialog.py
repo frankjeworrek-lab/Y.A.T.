@@ -9,9 +9,10 @@ from core.provider_config_manager import ProviderConfigManager
 
 
 class ProviderSettingsDialog:
-    def __init__(self):
+    def __init__(self, llm_manager=None):
         self.dialog = None
         self.config_manager = ProviderConfigManager()
+        self.llm_manager = llm_manager
         self.provider_inputs = {}
         
     def show(self):
@@ -31,9 +32,19 @@ class ProviderSettingsDialog:
             # Info text
             ui.label('Configure and manage AI providers').classes('text-sm text-gray-400 mb-4')
             
-            # Provider List
-            for provider in self.config_manager.get_all_providers():
-                self._build_provider_card(provider)
+            # Provider List - ONLY show actually loaded providers
+            if self.llm_manager:
+                # Get loaded provider IDs
+                loaded_provider_ids = list(self.llm_manager.providers.keys())
+                
+                # Filter config to only show loaded providers
+                for provider in self.config_manager.get_all_providers():
+                    if provider.id in loaded_provider_ids:
+                        self._build_provider_card(provider)
+            else:
+                # Fallback: Show all configured providers (backward compatibility)
+                for provider in self.config_manager.get_all_providers():
+                    self._build_provider_card(provider)
             
             ui.separator().classes('bg-gray-700 my-4')
             
