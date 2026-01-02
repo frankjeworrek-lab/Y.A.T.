@@ -74,22 +74,45 @@ class Sidebar:
         
             ui.separator().classes('bg-gray-700 mt-2')
             
-            # Preferences Button (Unified)
-            ui.button(
-                'Preferences',
-                icon='tune',
-                on_click=lambda: self._open_settings()
-            ).props('outline').classes('w-full text-gray-300 mb-2').style(
-                'border-color: var(--border-color); color: var(--text-primary);'
-            )
+            # Footer Actions
+            with ui.row().classes('w-full gap-2 items-center mb-2'):
+                # Preferences (Main Action)
+                ui.button(
+                    'Preferences',
+                    icon='tune',
+                    on_click=lambda: self._open_settings(tab='providers')
+                ).props('outline').classes('flex-1 text-gray-300').style(
+                    'border-color: var(--border-color); color: var(--text-primary);'
+                )
+                
+                # Help / Docs (Secondary Action)
+                ui.button(
+                    icon='help_outline',
+                    on_click=self._open_docs
+                ).props('outline').classes('text-gray-400 w-12').style(
+                    'border-color: var(--border-color); color: var(--text-secondary);'
+                ).tooltip('Knowledge Base')
             
  
     
     def _open_settings(self, tab='providers'):
         """Open settings dialog with specific tab"""
         from .provider_settings_dialog import ProviderSettingsDialog
+        # Pass self (Sidebar) as callback/parent logic provider if needed, or remove param if not used
+        # Note: Previous code had 'sidebar=self', checking if dialog accepts it.
+        # Assuming dialog accepts (llm_manager, on_theme_change_callback) or similar.
+        # Let's inspect dialog constructor.
+        # Step 446 says: __init__(self, llm_manager, on_theme_change=None):
+        # But previous code used: dialog = ProviderSettingsDialog(llm_manager=self.llm_manager, sidebar=self) (IN FILE VIEW above)
+        # Wait, file view line 91 says: ProviderSettingsDialog(llm_manager=self.llm_manager, sidebar=self)
+        # So I must keep that call signature!
         dialog = ProviderSettingsDialog(llm_manager=self.llm_manager, sidebar=self)
         dialog.show(initial_tab=tab)
+
+    def _open_docs(self):
+        """Open documentation dialog"""
+        from .docs_dialog import DocsDialog
+        DocsDialog().show()
     
 
 
