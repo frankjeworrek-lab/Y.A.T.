@@ -142,6 +142,12 @@ async def initialize_providers():
 @ui.page('/')
 async def main_page():
     """Main application page"""
+    # Remove default padding/gap to prevent scrollbars
+    ui.context.client.content.classes('p-0 gap-0')
+    
+    # FORCE NO SCROLLBARS on the main window
+    ui.add_head_html('<style>body { overflow: hidden !important; }</style>')
+
     # Ensure providers are initialized
     await initialize_providers()
     
