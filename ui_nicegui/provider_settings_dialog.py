@@ -142,12 +142,24 @@ class ProviderSettingsDialog:
         is_active = (provider.id == self.pending_active_provider) if self.pending_active_provider else (self.llm_manager and provider.id == self.llm_manager.active_provider_id)
         
         # Status logic
-        if is_active:
+        # 1. Check for Config Errors (Missing Keys)
+        if provider.status == 'error':
+            status_text = "NO KEY"
+            status_color = "orange" 
+            status_icon = "warning"
+        elif provider.config.get('init_error'):
+            # Runtime error during init (e.g. invalid key)
+            status_text = "ERROR"
+            status_color = "red"
+            status_icon = "error"
+        # 2. If healthy, check if Active
+        elif is_active:
             status_text = "ACTIVE"
             status_color = "green"
             status_icon = "check_circle"
+        # 3. Healthy but inactive
         else:
-            status_text = "INACTIVE"
+            status_text = "READY"
             status_color = "grey"
             status_icon = "radio_button_unchecked"
         
