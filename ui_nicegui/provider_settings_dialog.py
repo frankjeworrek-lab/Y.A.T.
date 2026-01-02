@@ -103,6 +103,11 @@ class ProviderSettingsDialog:
                     'background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);'
                 )
             
+            # Debug Info in Footer
+            from core.paths import USER_DATA_DIR
+            with ui.row().classes('w-full justify-center pb-2'):
+                 ui.label(f'Data: {USER_DATA_DIR}').classes('text-[10px] text-gray-600 font-mono')
+            
             # Logic to show footer only on Provider tab
             def update_footer(e):
                 # e.value is the selected tab object
