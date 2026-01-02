@@ -161,6 +161,7 @@ class Sidebar:
                 self.provider_status_label.classes('text-red-400', remove='text-gray-300')
             else:
                 self.provider_status_icon.name = 'circle'
+                self.provider_status_icon.props(remove='color=red') # FIX: Clear color prop so Tailwind class works
                 self.provider_status_icon.classes('text-green-400', remove='text-red-500')
                 self.provider_status_label.classes('text-gray-300', remove='text-red-400')
         else:
