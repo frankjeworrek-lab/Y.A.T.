@@ -209,12 +209,12 @@ class Sidebar:
                 self.provider_status_icon.classes('text-gray-500', remove='text-green-400 text-red-500 text-orange-400')
                 self.provider_status_label.classes('text-gray-300', remove='text-red-400 text-orange-400')
         else:
-            # No provider selected
-            self.provider_status_label.text = 'Active: None'
-            self.provider_status_icon.name = 'help_outline'
-            self.provider_status_icon.props('color=grey')
-            self.provider_status_icon.classes('text-gray-500', remove='text-green-400 text-red-500 text-orange-400')
-            self.provider_status_label.classes('text-gray-500', remove='text-red-400 text-orange-400')
+            # No provider selected -> Warn the user!
+            self.provider_status_label.text = 'No Active Provider'
+            self.provider_status_icon.name = 'warning'
+            self.provider_status_icon.props('color=orange')
+            self.provider_status_icon.classes('text-orange-400', remove='text-green-400 text-red-500 text-gray-500')
+            self.provider_status_label.classes('text-orange-400', remove='text-gray-300 text-red-400')
         
         # Check for provider errors (only show for ACTIVE provider)
         self.status_container.clear()
