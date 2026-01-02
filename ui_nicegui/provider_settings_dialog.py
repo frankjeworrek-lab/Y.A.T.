@@ -200,11 +200,11 @@ class ProviderSettingsDialog:
                 models = await provider_instance.get_available_models()
                 if models:
                     self.llm_manager.active_model_id = models[0].id
-                    ui.notify(f'Switched to {models[0].name}', type='positive')
+                    print(f'✓ Switched to {models[0].name}')  # Can't use ui.notify in background task
                 else:
-                    ui.notify(f'No models available for {provider_id}', type='warning')
+                    print(f'⚠️ No models available for {provider_id}')
             except Exception as e:
-                ui.notify(f'Error loading models: {e}', type='negative')
+                print(f'✗ Error loading models: {e}')
         
         asyncio.create_task(set_model())
         
