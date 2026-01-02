@@ -71,16 +71,70 @@ async def initialize_providers():
             print(f"  ✗ Failed to register {plugin_name}: {e}")
     
     # Set intelligent defaults
+    # Set intelligent defaults
+    from core.user_config import UserConfig
     enabled_providers = config_manager.get_enabled_providers()
-    if enabled_providers:
-        default_provider = enabled_providers[0]
-        llm_manager.active_provider_id = default_provider.id
-        provider_instance = llm_manager.providers.get(default_provider.id)
+    
+    # Strict Config Adherence Logic
+    # ------------------------------------------------------------------
+    # 1. Load explicit ACTIVE PROVIDER from UserConfig
+    saved_active_provider = UserConfig.get('active_provider_id')
+    
+    if saved_active_provider and saved_active_provider in llm_manager.providers:
+         # CASE A: We have a saved choice. WE OBEY IT.
+         # No checks for enabled status. No checks for successful init.
+         # You save what you get.
+         active_provider_id = saved_active_provider
+         print(f"✓ Config: Leaning on saved provider '{active_provider_id}'")
+    
+    elif enabled_providers:
+        # CASE B: First run / No config. 
+        # USER REQUEST: No fallbacks. The user sees the truth (nothing selected).
+        # active_provider_id = enabled_providers[0].id
+        print(f"✓ Config: No saved provider. Starting with NONE.")
+        active_provider_id = None
+        
+    # 2. Set the Active Provider in Manager
+    if active_provider_id:
+        llm_manager.active_provider_id = active_provider_id
+        
+        # 3. Try to restore last model (UI sugar only)
+        # We try to make the UI nice, but we don't change the provider based on this.
+        provider_instance = llm_manager.providers.get(active_provider_id)
         if provider_instance:
-            models = await provider_instance.get_available_models()
-            if models:
-                llm_manager.active_model_id = models[0].id
-                print(f"\n✓ Default: {default_provider.name} / {models[0].name}")
+            last_model = UserConfig.get('last_model')
+            target_model_id = None
+            
+            # extract model id if it matches our provider
+            if last_model and last_model.startswith(active_provider_id + '|'):
+                 try:
+                     _, mid = last_model.split('|', 1)
+                     target_model_id = mid
+                 except ValueError:
+                     pass
+            
+            # Try to fetch models to validate target_model_id
+            try:
+                models = await provider_instance.get_available_models()
+                if not models:
+                    raise ValueError("No models available (check credentials)")
+                    
+                if target_model_id and any(m.id == target_model_id for m in models):
+                    llm_manager.active_model_id = target_model_id
+                else:
+                    llm_manager.active_model_id = models[0].id
+                print(f"✓ Active Model: {llm_manager.active_model_id}")
+                
+                # Clear error if success
+                provider_instance.config.init_error = None
+            except Exception as e:
+                # If fetching models fails (e.g. invalid key), we still stay on this provider!
+                # We just can't set a model ID yet. The UI will show the error.
+                error_msg = f"Startup Model Fetch Error: {str(e)}"
+                print(f"  Confirming active provider '{active_provider_id}' despite model fetch error: {e}")
+                provider_instance.config.init_error = error_msg
+    
+    print("✓ Plugin-based providers initialized successfully\n")
     
     print("✓ Plugin-based providers initialized successfully\n")
 

@@ -75,26 +75,6 @@
           "env_var": "GOOGLE_API_KEY"
         }
       ]
-    },
-    {
-      "id": "ollama",
-      "name": "Ollama (Local)",
-      "type": "local",
-      "icon": "computer",
-      "color": "orange",
-      "enabled": false,
-      "config": {
-        "base_url": "http://localhost:11434"
-      },
-      "settings": [
-        {
-          "key": "base_url",
-          "label": "Endpoint URL",
-          "type": "text",
-          "required": true,
-          "default": "http://localhost:11434"
-        }
-      ]
     }
   ]
 }

@@ -143,6 +143,7 @@ class Sidebar:
             options[key] = text
         
         self.model_select.options = options
+        self.model_select.update()
         
         # Update Active Provider Status Badge
         active_provider = self.llm_manager.providers.get(self.llm_manager.active_provider_id)
@@ -151,12 +152,24 @@ class Sidebar:
             has_error = bool(active_provider.config.init_error)
             
             self.provider_status_label.text = f'Active: {provider_name}'
+            print(f"DEBUG Sidebar: Active={provider_name}, Error={active_provider.config.init_error}")
+            
             if has_error:
+                self.provider_status_icon.name = 'warning'
                 self.provider_status_icon.props('color=red')
-                self.provider_status_icon.classes('text-red-400', remove='text-green-400')
+                self.provider_status_icon.classes('text-red-500', remove='text-green-400')
+                self.provider_status_label.classes('text-red-400', remove='text-gray-300')
             else:
-                self.provider_status_icon.props('color=green')
-                self.provider_status_icon.classes('text-green-400', remove='text-red-400')
+                self.provider_status_icon.name = 'circle'
+                self.provider_status_icon.classes('text-green-400', remove='text-red-500')
+                self.provider_status_label.classes('text-gray-300', remove='text-red-400')
+        else:
+            # No provider selected (Truth)
+            self.provider_status_label.text = 'Active: None'
+            self.provider_status_icon.name = 'help_outline'
+            self.provider_status_icon.props('color=grey')
+            self.provider_status_icon.classes('text-gray-500', remove='text-green-400 text-red-500')
+            self.provider_status_label.classes('text-gray-500', remove='text-red-400')
         
         # Check for provider errors (only show for ACTIVE provider)
         self.status_container.clear()
@@ -164,6 +177,7 @@ class Sidebar:
         
         active_provider = self.llm_manager.providers.get(self.llm_manager.active_provider_id)
         if active_provider and active_provider.config.init_error:
+            print(f"DEBUG: Showing error for {active_provider.config.name}: {active_provider.config.init_error}")
             has_errors = True
             with self.status_container:
                 with ui.card().classes('w-full p-2 bg-red-900 bg-opacity-20 border border-red-700'):
@@ -176,24 +190,36 @@ class Sidebar:
         self.status_container.visible = has_errors
         
         # Smart default selection
+        # Respect the managers active provider (which was set by main.py from config)
         saved_model = UserConfig.get('last_model')
-        current_selection = f"{self.llm_manager.active_provider_id}|{self.llm_manager.active_model_id}"
+        current_manager_provider = self.llm_manager.active_provider_id
         
         target_value = None
         
-        # Priority: Saved > Current (non-mock) > First real > Fallback
-        if saved_model and saved_model in options:
-            target_value = saved_model
-        elif current_selection and 'mock' not in current_selection.lower() and current_selection in options:
-            target_value = current_selection
-        elif options:
-            real_models = [k for k in options.keys() if 'mock' not in k.lower()]
-            target_value = real_models[0] if real_models else list(options.keys())[0]
+        # 1. Try saved model ONLY if it matches active provider
+        if saved_model and saved_model in options and saved_model.startswith(current_manager_provider + '|'):
+             target_value = saved_model
         
+        # 2. Else use current selection from Manager (which main.py set up)
+        elif f"{current_manager_provider}|{self.llm_manager.active_model_id}" in options:
+             target_value = f"{current_manager_provider}|{self.llm_manager.active_model_id}"
+             
+        # 3. Fallback: First model of active provider
+        if not target_value:
+             provider_options = [k for k in options.keys() if k.startswith(current_manager_provider + '|')]
+             if provider_options:
+                 target_value = provider_options[0]
+        
+        # 4. Ultimate Fallback
+        if not target_value and options:
+            target_value = list(options.keys())[0]
+
         if target_value:
             self.model_select.value = target_value
-            # Trigger the on_change handler programmatically
-            self._handle_model_change(None)
+            # Do NOT trigger on_change if we are just restoring state to avoid loops
+            # self._handle_model_change(None) 
+            # We just set the UI to match the internal state
+            pass
     
     def update_history_list(self, conversations):
         """Update chat history list with modern card design"""

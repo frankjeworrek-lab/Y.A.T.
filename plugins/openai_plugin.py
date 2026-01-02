@@ -23,9 +23,6 @@ class OpenAIProvider(BaseLLMProvider):
         """Initialize OpenAI client"""
         self.api_key = os.getenv('OPENAI_API_KEY')
         
-        if not self.api_key:
-            self.config.init_error = "API key not found. Set OPENAI_API_KEY environment variable."
-            return
         
         try:
             from openai import AsyncOpenAI
@@ -45,7 +42,7 @@ class OpenAIProvider(BaseLLMProvider):
     
     async def get_available_models(self) -> list[ModelInfo]:
         """Fetch real list of available OpenAI models dynamically"""
-        if not self.client:
+        if self.config.init_error or not self.client:
             return []
             
         # Return cached models if available (performance)
@@ -100,11 +97,7 @@ class OpenAIProvider(BaseLLMProvider):
             
         except Exception as e:
             print(f"  ✗ Failed to fetch models: {e}")
-            # Fallback to defaults if API fails
-            return [
-                ModelInfo(id="gpt-4o", name="GPT-4o (Fallback)", provider="OpenAI", context_length=128000),
-                ModelInfo(id="gpt-3.5-turbo", name="GPT-3.5 Turbo (Fallback)", provider="OpenAI", context_length=16385),
-            ]
+            raise e # Re-raise to trigger error handling in UI logic
     
     async def stream_chat(
         self,

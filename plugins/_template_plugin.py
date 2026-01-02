@@ -41,22 +41,20 @@ class TemplateProvider(BaseLLMProvider):
         This is called once on app startup. Use it to:
         - Load API keys from environment
         - Create API client instances
-        - Validate configuration
+        - CRITICAL: Perform a real API call (e.g. list_models or ping) to verify the key!
         - Set self.config.init_error if something fails
         """
         # Example: Load API key
         self.api_key = os.getenv('YOUR_PROVIDER_API_KEY')
         
-        if not self.api_key:
-            self.config.init_error = "API key not found. Set YOUR_PROVIDER_API_KEY"
-            return
-        
         try:
-            # Example: Create API client
-            # from your_provider_sdk import AsyncClient
-            # self.client = AsyncClient(api_key=self.api_key)
+            # TODO: Initialize your client here
+            # self.client = MyClient(api_key=self.api_key)
             
-            print(f"✓ Your Provider initialized")
+            # TODO: Add a real Health Check here!
+            # await self.client.models.list()  # <--- This forces the API to validate the key immediately
+            
+            print(f"✓ {self.config.name} initialized")
         except Exception as e:
             self.config.init_error = f"Failed to initialize: {str(e)}"
             print(f"✗ Your Provider initialization failed: {e}")

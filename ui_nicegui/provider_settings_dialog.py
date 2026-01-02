@@ -68,25 +68,15 @@ class ProviderSettingsDialog:
         # Determine intelligent status (check pending selection first)
         is_active = (provider.id == self.pending_active_provider) if self.pending_active_provider else (self.llm_manager and provider.id == self.llm_manager.active_provider_id)
         
-        # Check if API key exists
-        api_key_setting = next((s for s in provider.settings if s['key'] == 'api_key'), None)
-        has_key = False
-        if api_key_setting and api_key_setting.get('env_var'):
-            has_key = bool(os.getenv(api_key_setting['env_var']))
-        
         # Status logic
         if is_active:
             status_text = "ACTIVE"
             status_color = "green"
             status_icon = "check_circle"
-        elif has_key:
-            status_text = "READY"
-            status_color = "blue"
-            status_icon = "verified"
         else:
-            status_text = "NO KEY"
-            status_color = "orange"
-            status_icon = "key_off"
+            status_text = "INACTIVE"
+            status_color = "grey"
+            status_icon = "radio_button_unchecked"
         
         with ui.card().classes('w-full mb-4 p-4').style(
             'background-color: #111827; border: 1px solid #374151;'
@@ -119,10 +109,6 @@ class ProviderSettingsDialog:
             # Info text
             if is_active:
                 ui.label('🟢 Currently in use for chat').classes('text-xs text-green-400 mb-2')
-            elif has_key:
-                ui.label('💡 Ready to use. Select a model from sidebar to activate.').classes('text-xs text-blue-400 mb-2')
-            else:
-                ui.label('⚠️ API key required. Enter below to enable this provider.').classes('text-xs text-orange-400 mb-2')
             
             # Settings (always show, user can configure keys even if not active)
             with ui.column().classes('w-full gap-3 mt-3 pt-3 border-t border-gray-700'):
@@ -131,14 +117,19 @@ class ProviderSettingsDialog:
     
     def _build_setting_input(self, provider, setting):
         """Build an input field for a provider setting"""
-        # Get current value
-        current_value = self.config_manager.get_provider_setting_value(
-            provider.id, 
-            setting['key']
-        ) or setting.get('default', '')
-        
-        # Create appropriate input type
+        # Create unique key first
         input_key = f"{provider.id}_{setting['key']}"
+        
+        # Determine value logic:
+        # 1. Check temporary state (if we just refreshed UI while user was typing)
+        if hasattr(self, 'temp_input_values') and input_key in self.temp_input_values:
+            current_value = self.temp_input_values[input_key]
+        else:
+            # 2. Check saved config/env
+            current_value = self.config_manager.get_provider_setting_value(
+                provider.id, 
+                setting['key']
+            ) or setting.get('default', '')
         
         with ui.row().classes('w-full items-center gap-3'):
             ui.label(setting['label']).classes('text-sm text-gray-300 w-32')
@@ -169,6 +160,17 @@ class ProviderSettingsDialog:
     
     def _activate_provider(self, provider_id: str):
         """Stage provider activation (applied on Save)"""
+        # 1. PRESERVE STATE: Capture all current input values before destroying them
+        if not hasattr(self, 'temp_input_values'):
+            self.temp_input_values = {}
+        
+        for key, widget in self.provider_inputs.items():
+            # For booleans/switches, value is boolean. For inputs, it's string.
+            val = widget.value
+            if isinstance(val, bool):
+                 val = 'true' if val else 'false'
+            self.temp_input_values[key] = val
+            
         self.pending_active_provider = provider_id
         # Refresh UI to show checked radio button
         self._render_provider_list()
@@ -209,11 +211,16 @@ class ProviderSettingsDialog:
                 value = input_widget.value
             
             # Save to environment if has env_var (API keys)
-            if setting_def.get('env_var') and value:
-                os.environ[setting_def['env_var']] = value
-                
-                # Also save to .env file (ONLY here, NOT in provider_config.json!)
-                self._update_env_file(setting_def['env_var'], value)
+            if setting_def.get('env_var'):
+                print(f"DEBUG: Saving {setting_def['env_var']} = '{value}' (Length: {len(value)})")
+                if value:
+                    os.environ[setting_def['env_var']] = value
+                    self._update_env_file(setting_def['env_var'], value)
+                else:
+                    # Explicitly remove if empty!
+                    if setting_def['env_var'] in os.environ:
+                        del os.environ[setting_def['env_var']]
+                    self._update_env_file(setting_def['env_var'], "")
             
             # Update provider config ONLY for non-API-key settings
             # API keys should NEVER be in provider_config.json
@@ -223,57 +230,71 @@ class ProviderSettingsDialog:
                     {setting_key: value}
                 )
         
+        # Apply pending provider activation immediately so re-init knows what's active
+        if self.pending_active_provider and self.llm_manager:
+            from core.user_config import UserConfig
+            self.llm_manager.active_provider_id = self.pending_active_provider
+            
+            # 1. PERSIST ACTIVATION IMMEDIATELY
+            UserConfig.save('active_provider_id', self.pending_active_provider)
+
         # Re-initialize all providers to pick up new/removed API keys
         if self.llm_manager:
             import asyncio
-            async def reinit_providers():
-                # Determine active provider  ID
-                active_pid = self.pending_active_provider or self.llm_manager.active_provider_id
-                
-                # 1. ACTIVE provider FIRST (critical errors show immediately!)
+            async def reinit_sequence():
+                # 1. Re-initialize ACTIVE provider first
+                active_pid = self.llm_manager.active_provider_id
                 if active_pid and active_pid in self.llm_manager.providers:
                     try:
                         await self.llm_manager.providers[active_pid].initialize()
                         print(f"✓ Re-initialized (ACTIVE): {active_pid}")
                     except Exception as e:
                         print(f"✗ Re-init failed (ACTIVE): {active_pid}: {e}")
-                    
-                    # Refresh Sidebar immediately after active provider init
-                    # This updates the "Active: ..." badge and error status
-                    if self.sidebar:
-                        await self.sidebar.load_models()
-                
-                # 2. Other providers (background)
-                for pid, provider in self.llm_manager.providers.items():
-                    if pid != active_pid:
+
+                # 2. If we just switched provider, load its models and select default
+                if self.pending_active_provider:
+                     provider_instance = self.llm_manager.providers.get(self.pending_active_provider)
+                     if provider_instance:
                         try:
-                            await provider.initialize()
-                            print(f"✓ Re-initialized: {pid}")
+                            models = await provider_instance.get_available_models()
+                            if not models:
+                                raise ValueError("No models returned by provider. Please check API Key/Settings.")
+                            
+                            # ONLY auto-select first model if we actually CHANGED the provider
+                            # If we just updated settings for the SAME provider, keep the current model!
+                            current_model_is_valid = False
+                            if self.llm_manager.active_model_id:
+                                if any(m.id == self.llm_manager.active_model_id for m in models):
+                                    current_model_is_valid = True
+                            
+                            if not current_model_is_valid:
+                                self.llm_manager.active_model_id = models[0].id
+                                print(f'✓ Activated model: {models[0].name}')
+                            else:
+                                print(f'✓ Kept active model: {self.llm_manager.active_model_id}')
+                            # Clear any previous error if success
+                            provider_instance.config.init_error = None
                         except Exception as e:
-                            print(f"✗ Re-init failed: {pid}: {e}")
+                             print(f'✗ Error loading models for new provider: {e}')
+                             # Propagate error to provider config so Sidebar shows it
+                             err_msg = f"Model Fetch Error: {str(e)}"
+                             provider_instance.config.init_error = err_msg
+                             print(f"Provider Error: {err_msg}")
+                             # ui.notify intentionally removed to avoid 'slot stack empty' error in background task
+                             # The Sidebar status update below will show the error visually anyway.
+
+                # 3. Refresh Sidebar UI (CRITICAL: Do this after model selection)
+                if self.sidebar:
+                    # Pass explicit True to force update even if value seems same
+                    await self.sidebar.load_models()
+
+                # 4. Re-initialize other providers in background -> REMOVED per user request ("Highlander Principle")
+                # We only care about the active provider. Others will be initialized when they become active.
+                pass
             
-            asyncio.create_task(reinit_providers())
+            asyncio.create_task(reinit_sequence())
         
-        # Apply pending provider activation (if any)
-        if self.pending_active_provider and self.llm_manager:
-            provider_instance = self.llm_manager.providers.get(self.pending_active_provider)
-            if provider_instance:
-                self.llm_manager.active_provider_id = self.pending_active_provider
-                
-                # Select first model from this provider
-                import asyncio
-                async def set_model():
-                    try:
-                        models = await provider_instance.get_available_models()
-                        if models:
-                            self.llm_manager.active_model_id = models[0].id
-                            print(f'✓ Activated: {self.pending_active_provider} / {models[0].name}')
-                    except Exception as e:
-                        print(f'✗ Error loading models: {e}')
-                
-                asyncio.create_task(set_model())
-        
-        ui.notify('Settings saved! Providers reloaded.', type='positive')
+        ui.notify('Settings saved & Provider updated!', type='positive')
         self.dialog.close()
     
     def _update_env_file(self, key: str, value: str):

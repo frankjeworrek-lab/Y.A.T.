@@ -20,10 +20,6 @@ class AnthropicProvider(BaseLLMProvider):
         """Initialize Anthropic client"""
         self.api_key = os.getenv('ANTHROPIC_API_KEY')
         
-        if not self.api_key:
-            self.config.init_error = "API key not found. Set ANTHROPIC_API_KEY environment variable."
-            return
-        
         try:
             from anthropic import AsyncAnthropic
             self.client = AsyncAnthropic(api_key=self.api_key)
@@ -41,23 +37,37 @@ class AnthropicProvider(BaseLLMProvider):
         return await self.get_available_models()
     
     async def get_available_models(self) -> list[ModelInfo]:
-        """Get list of available Anthropic models"""
-        return [
-            ModelInfo(
-                id="claude-3-5-sonnet-20241022",
-                name="Claude 3.5 Sonnet",
-                provider="Anthropic",
-                context_length=200000,
-                supports_streaming=True
-            ),
-            ModelInfo(
-                id="claude-3-opus-20240229",
-                name="Claude 3 Opus",
-                provider="Anthropic",
-                context_length=200000,
-                supports_streaming=True
-            ),
-        ]
+        """Get list of available Anthropic models via API (Honesty Check)"""
+        if self.config.init_error or not self.client:
+            return []
+            
+        try:
+            print("  ↻ Fetching Anthropic models from API...")
+            # Real API call to prove key validity
+            response = await self.client.models.list()
+            
+            models = []
+            for m in response.data:
+                # Filter useful models if necessary, or take all
+                if m.type == 'model':
+                    models.append(ModelInfo(
+                        id=m.id,
+                        name=m.display_name,
+                        provider="Anthropic",
+                        context_length=200000, # Anthropic usually doesn't return context length in list, default large
+                        supports_streaming=True
+                    ))
+            
+            # Use fallback cache if API returns empty but no error (rare)
+            if not models:
+                 raise ValueError("API returned no models")
+                 
+            print(f"  ✓ Fetched {len(models)} Anthropic models")
+            return models
+            
+        except Exception as e:
+            print(f"  ✗ Anthropic model fetch failed: {e}")
+            raise e  # Fail loud -> Red Light
     
     async def stream_chat(
         self,
