@@ -59,10 +59,8 @@ class Sidebar:
                 self.status_container = status_col
                 self.status_container.visible = False
             
-            ui.space().classes('h-2')
-            
-            # Chat History Section
-            with ui.column().classes('w-full flex-1 min-h-0'):
+            # Chat History Section with margin instead of flex spacer
+            with ui.column().classes('w-full flex-1 min-h-0 mt-6'):
                 with ui.row().classes('w-full justify-between items-center mb-2'):
                     ui.label('History').classes('text-sm font-semibold text-gray-300')
                     ui.button(
