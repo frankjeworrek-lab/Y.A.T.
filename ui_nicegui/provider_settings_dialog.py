@@ -14,6 +14,7 @@ class ProviderSettingsDialog:
         self.config_manager = ProviderConfigManager()
         self.llm_manager = llm_manager
         self.provider_inputs = {}
+        self.pending_active_provider = None  # Staged change until Save
         
     def show(self):
         """Show the provider settings dialog"""
@@ -59,8 +60,8 @@ class ProviderSettingsDialog:
     
     def _build_provider_card(self, provider):
         """Build a card for a single provider"""
-        # Determine intelligent status
-        is_active = self.llm_manager and provider.id == self.llm_manager.active_provider_id
+        # Determine intelligent status (check pending selection first)
+        is_active = (provider.id == self.pending_active_provider) if self.pending_active_provider else (self.llm_manager and provider.id == self.llm_manager.active_provider_id)
         
         # Check if API key exists
         api_key_setting = next((s for s in provider.settings if s['key'] == 'api_key'), None)
@@ -162,54 +163,10 @@ class ProviderSettingsDialog:
                 ui.label('*').classes('text-red-400 text-sm')
     
     def _activate_provider(self, provider_id: str):
-        """Activate a provider and select its first model"""
-        if not self.llm_manager:
-            return
-        
-        # Check if API key exists (either in env or in current input)
-        provider_config = self.config_manager.get_provider(provider_id)
-        if provider_config:
-            api_key_setting = next((s for s in provider_config.settings if s['key'] == 'api_key'), None)
-            if api_key_setting and api_key_setting.get('env_var'):
-                # Check env first
-                has_key = bool(os.getenv(api_key_setting['env_var']))
-                
-                # If not in env, check if user just entered it in the form
-                if not has_key:
-                    input_key = f"{provider_id}_api_key"
-                    if input_key in self.provider_inputs:
-                        has_key = bool(self.provider_inputs[input_key].value)
-                
-                if not has_key:
-                    ui.notify('⚠️ Please save API key first, then activate!', type='warning', position='top')
-                    return
-        
-        # Get provider instance
-        provider_instance = self.llm_manager.providers.get(provider_id)
-        if not provider_instance:
-            ui.notify(f'Provider {provider_id} not available', type='warning')
-            return
-        
-        # Set as active provider
-        self.llm_manager.active_provider_id = provider_id
-        
-        # Get first available model from this provider
-        import asyncio
-        async def set_model():
-            try:
-                models = await provider_instance.get_available_models()
-                if models:
-                    self.llm_manager.active_model_id = models[0].id
-                    print(f'✓ Switched to {models[0].name}')  # Can't use ui.notify in background task
-                else:
-                    print(f'⚠️ No models available for {provider_id}')
-            except Exception as e:
-                print(f'✗ Error loading models: {e}')
-        
-        asyncio.create_task(set_model())
-        
-        # Don't refresh dialog - it would lose unsaved inputs!
-        # User can see the change in sidebar dropdown after closing dialog
+        """Stage provider activation (applied on Save)"""
+        self.pending_active_provider = provider_id
+        # Force UI refresh to show checked radio button
+        self.dialog.update()
     
     def _toggle_provider(self, provider_id: str, enabled: bool):
         """Toggle provider enabled/disabled"""
@@ -261,7 +218,26 @@ class ProviderSettingsDialog:
                     {setting_key: value}
                 )
         
-        ui.notify('Provider settings saved! Restart app to apply changes.', type='positive')
+        # Apply pending provider activation (if any)
+        if self.pending_active_provider and self.llm_manager:
+            provider_instance = self.llm_manager.providers.get(self.pending_active_provider)
+            if provider_instance:
+                self.llm_manager.active_provider_id = self.pending_active_provider
+                
+                # Select first model from this provider
+                import asyncio
+                async def set_model():
+                    try:
+                        models = await provider_instance.get_available_models()
+                        if models:
+                            self.llm_manager.active_model_id = models[0].id
+                            print(f'✓ Activated: {self.pending_active_provider} / {models[0].name}')
+                    except Exception as e:
+                        print(f'✗ Error loading models: {e}')
+                
+                asyncio.create_task(set_model())
+        
+        ui.notify('Settings saved! Provider activated.', type='positive')
         self.dialog.close()
     
     def _update_env_file(self, key: str, value: str):
