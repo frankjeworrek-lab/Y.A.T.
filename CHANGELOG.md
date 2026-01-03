@@ -10,7 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - Tooltip for status badge ("Click to retry connection")
 - Pulse animation for warning states
-- Improved Windows reset script reliability
+
+---
+
+## [v0.2.11] - 2026-01-03
+
+### Fixed
+- **Factory Reset Feature Completion:**
+  - Fixed missing "Restart/Close" choice dialog after factory reset execution
+  - Dialog now correctly recycles container instead of creating new one
+  - Eliminated `SystemExit` tracebacks using `os._exit()` with async delays
+  - Added PyWebView window closure support for desktop mode
+  - Factory Reset now fully functional: Warning → Reset → Choice (Restart/Close)
+
+### Removed
+- Obsolete standalone reset scripts (`tools/reset_data.py`, `tools/reset_windows.bat`)
+  - In-app Factory Reset feature replaces external tools
 
 ---
 
