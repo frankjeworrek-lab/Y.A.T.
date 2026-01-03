@@ -16,6 +16,8 @@ from core.llm_manager import LLMManager
 from core.providers.types import ProviderConfig
 from ui_nicegui.app_layout import AppLayout
 
+APP_VERSION = "v0.2.10"
+
 def resolve_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller"""
     try:
@@ -183,7 +185,7 @@ async def initialize_providers():
     print("[OK] Plugin-based providers initialized successfully\n")
 
 
-@ui.page('/', title='Y.A.T.')
+@ui.page('/', title=f'Y.A.T. {APP_VERSION}')
 async def main_page():
     """Main application page"""
     # Remove default padding/gap to prevent scrollbars
@@ -245,7 +247,7 @@ def start_desktop_mode():
     def start_nicegui_server():
         """Start NiceGUI server in background thread"""
         ui.run(
-            title='Y.A.T.',
+            title=f'Y.A.T. {APP_VERSION}',
             favicon=resolve_path('logo/dock.png'),
             dark=True,
             reload=False,
@@ -266,7 +268,7 @@ def start_desktop_mode():
     # Create native desktop window with PyWebView
     print("[*] Creating desktop window...")
     webview.create_window(
-        title='Y.A.T.',
+        title=f'Y.A.T. {APP_VERSION}',
         url='http://localhost:8080',
         width=1200,
         height=800,
