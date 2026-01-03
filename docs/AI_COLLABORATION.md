@@ -77,6 +77,79 @@ If you think something *else* also needs fixing:
 
 **Never bundle them implicitly.**
 
+### 9. Build & Distribution Automation
+
+**Core Idea:** When pushing version tags, automatically trigger and retrieve all platform builds.
+
+#### The Automated Build Pipeline
+
+**User Request Pattern:**
+```
+User: "Push and build distributions"
+User: "Push and trigger builds"
+User: "Release v0.x.x"
+```
+
+**AI Must Execute (in order):**
+
+1. **Version Bump & Tag:**
+   ```bash
+   # Update main.py APP_VERSION
+   # Update CHANGELOG.md
+   git add main.py CHANGELOG.md
+   git commit -m "Release vX.Y.Z: Description"
+   git tag -a vX.Y.Z -m "Release message"
+   git push origin <branch>
+   git push origin vX.Y.Z
+   ```
+
+2. **Immediately After Tag Push:**
+   ```bash
+   ./tools/auto_download_builds.sh vX.Y.Z &
+   ```
+   - Runs in **background** (note the `&`)
+   - User can continue working
+   - Script waits for GitHub Actions completion
+   - Downloads all platform artifacts to `./builds/`
+   - Sends desktop notification when ready
+
+3. **AI Confirms to User:**
+   ```
+   ✅ Tag vX.Y.Z pushed
+   🚀 Windows + Mac builds triggered automatically
+   📥 Auto-download running in background (~8 min)
+   🔔 You'll get a notification when builds are ready
+   ```
+
+#### Why This Matters
+
+**Before (Manual):**
+- User requests push
+- AI pushes tag
+- User manually checks GitHub Actions
+- User manually downloads artifacts
+- Time wasted, context switching
+
+**After (Automated):**
+- User requests push  
+- AI handles everything automatically
+- Builds appear in `./builds/` without user action
+- Desktop notification on completion
+- User stays focused
+
+#### Rules
+
+✅ **Always** run `auto_download_builds.sh` after tag push  
+✅ **Always** run it in background with `&`  
+✅ **Never** block user workflow waiting for builds  
+✅ **Always** confirm what's happening to user  
+
+❌ **Never** push tag without triggering auto-download  
+❌ **Never** run auto-download synchronously (blocking)  
+❌ **Never** forget the background `&` operator
+
+**Never bundle them implicitly.**
+
 ## Anti-Patterns (Learned the Hard Way)
 
 ### ❌ "While I'm at it" Syndrome
