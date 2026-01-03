@@ -21,17 +21,38 @@ class PluginLoader:
         
     def discover_plugins(self) -> List[str]:
         """Discover all Python files in the plugins directory"""
+        from core.paths import get_data_path
+        debug_log = get_data_path('plugin_debug.log')
+        
+        def log(msg):
+            print(msg)
+            with open(debug_log, 'a') as f:
+                f.write(msg + '\n')
+        
+        log(f"\n=== PLUGIN DISCOVERY DEBUG ===")
+        log(f"Plugin directory path: {self.plugins_dir}")
+        log(f"Absolute path: {self.plugins_dir.resolve()}")
+        log(f"Directory exists: {self.plugins_dir.exists()}")
+        
         if not self.plugins_dir.exists():
             self.plugins_dir.mkdir(parents=True, exist_ok=True)
-            print(f"[OK] Created plugins directory: {self.plugins_dir}")
+            log(f"[OK] Created plugins directory: {self.plugins_dir}")
             return []
+        
+        log(f"Scanning for *.py files...")
+        all_files = list(self.plugins_dir.glob("*"))
+        log(f"All files in directory ({len(all_files)}): {[f.name for f in all_files]}")
         
         plugin_files = []
         for file_path in self.plugins_dir.glob("*.py"):
+            log(f"  Found .py: {file_path.name}")
             if file_path.name.startswith("_"):
+                log(f"    -> Skipped (starts with _)")
                 continue  # Skip __init__.py and private files
             plugin_files.append(file_path.stem)
+            log(f"    -> Added: {file_path.stem}")
         
+        log(f"Final plugin list ({len(plugin_files)}): {plugin_files}")
         return plugin_files
     
     def load_plugin(self, plugin_name: str) -> Optional[Type[BaseLLMProvider]]:
