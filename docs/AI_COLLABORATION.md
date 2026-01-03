@@ -119,7 +119,12 @@ User: "Release v0.x.x"
    🚀 Windows + Mac builds triggered automatically
    📥 Auto-download running in background (~8 min)
    🔔 You'll get a notification when builds are ready
+   
+   📊 Watch builds live:
+   👉 https://github.com/frankjeworrek-lab/Yat-App/actions
    ```
+   
+   **IMPORTANT:** Always provide GitHub Actions link for transparency
 
 #### Why This Matters
 
