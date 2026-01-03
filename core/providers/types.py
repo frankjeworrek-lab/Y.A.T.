@@ -34,3 +34,4 @@ class ProviderConfig(BaseModel):
     base_url: Optional[str] = None
     enabled: bool = True
     init_error: Optional[str] = None  # Speichert Fehler wie "API Key missing"
+    status: Optional[str] = "unknown" # 'active', 'error' (synced from Manager)

@@ -151,6 +151,9 @@ async def initialize_providers():
                 if not models:
                     raise ValueError("No models available (check credentials)")
                     
+                # Valid providers are loaded.
+                # Note: We do NOT auto-select a default provider (Zero Trust).
+                
                 if target_model_id and any(m.id == target_model_id for m in models):
                     llm_manager.active_model_id = target_model_id
                 else:
