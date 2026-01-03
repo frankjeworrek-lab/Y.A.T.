@@ -5,6 +5,7 @@ Model selection, chat history, and controls
 from nicegui import ui
 from core.llm_manager import LLMManager
 from core.user_config import UserConfig
+from .components.connection_status import ConnectionMonitor
 
 
 class Sidebar:
@@ -97,6 +98,9 @@ class Sidebar:
                 ).props('outline').classes('text-gray-400 w-12').style(
                     'border-color: var(--border-color); color: var(--text-secondary);'
                 ).tooltip('Knowledge Base')
+            
+            # Global Connection Monitor (Footer)
+            ConnectionMonitor().build()
             
 
             
@@ -248,13 +252,15 @@ class Sidebar:
         if active_provider and active_provider.config.init_error:
             print(f"DEBUG: Showing error for {active_provider.config.name}: {active_provider.config.init_error}")
             has_errors = True
+    
             with self.status_container:
                 with ui.card().classes('w-full p-2 bg-red-900 bg-opacity-20 border border-red-700'):
-                    with ui.row().classes('items-center gap-2'):
-                        ui.icon('warning', color='amber', size='sm')
-                        ui.label(f"{active_provider.config.name}: {active_provider.config.init_error}").classes(
-                            'text-xs text-red-300'
-                        )
+                     with ui.row().classes('items-center gap-2'):
+                         ui.icon('warning', color='amber', size='sm')
+                         ui.label(f"{active_provider.config.name}: {active_provider.config.init_error}").classes(
+                             'text-xs text-red-300'
+                         )
+
         
         self.status_container.visible = has_errors
         
@@ -316,3 +322,19 @@ class Sidebar:
                         """)
                         ui.label(conv['title']).classes('text-sm font-medium text-gray-200 truncate')
                         ui.label(conv['updated_at'][:10]).classes('text-xs text-gray-500 mt-1')
+
+    def set_optimistic_state(self, provider_id: str):
+        """
+        OPTIMISTIC UI: Immediately set visual state to 'Connecting...'
+        Called by Settings Dialog BEFORE the async initialization finishes.
+        This provides instant feedback on slow systems (Windows).
+        """
+        # Set Badge to Connecting (Spinner)
+        self.provider_status_icon.name = 'sync'
+        self.provider_status_icon.props('color=yellow')
+        self.provider_status_icon.classes('text-yellow-400 animate-spin', remove='text-green-400 text-red-500 text-orange-400 animate-pulse text-gray-500')
+        
+        self.provider_status_label.text = f'Connecting: {provider_id}...'
+        self.provider_status_label.classes('text-yellow-400', remove='text-gray-300 text-red-400 text-orange-400')
+        self.provider_status_label.update()
+        self.provider_status_icon.update()

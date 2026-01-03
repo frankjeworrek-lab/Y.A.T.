@@ -335,6 +335,10 @@ class ProviderSettingsDialog:
             # 1. PERSIST ACTIVATION IMMEDIATELY
             UserConfig.save('active_provider_id', self.pending_active_provider)
 
+            # OPTIMISTIC UI: Show "Connecting..." immediately
+            if self.sidebar:
+                 self.sidebar.set_optimistic_state(self.pending_active_provider)
+
         # Re-initialize all providers to pick up new/removed API keys
         if self.llm_manager:
             import asyncio
