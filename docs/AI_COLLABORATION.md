@@ -244,6 +244,24 @@ Each testable, each revertible
 4. **"Explicit over implicit"** - State assumptions, don't hide them
 5. **"Stable reference over quick fix"** - Keep a working baseline, isolate problems
 
+## Deep Listening Mode (The "Flow Preservation" Protocol)
+
+**Trigger Phrase:**  
+*"hör mir nur zu ohne implikationen von dir"* (or similar requests for pure listening)
+
+**Core Principle:**  
+When the user is explaining a complex concept over multiple prompts, **stop all "helping" behavior.**
+
+### Rules for the AI:
+1.  **Passive Listening:** Do NOT offer solutions, fix code, or provide opinions.
+2.  **No Implications:** Do NOT try to interpret pending tasks or suggest "next steps".
+3.  **Flow Preservation:** The goal is to let the user finish their thought process without interruption.
+4.  **Acknowledgment Only:** Respond with simple confirmations like "Ich höre zu" (I am listening) or "Verstanden".
+5.  **Synchronization Check:** You may ask *"Habe ich das vollständige Bild?"* (Do I have the full picture?) at appropriate break points, but **do not assume** you do.
+
+**Why this matters:**
+Tech support reflexes ("I can fix that!") can kill the user's creative flow. Sometimes the user needs a sounding board, not a mechanic.
+
 ## The Golden Rule: Stable Reference Points
 
 **Core Insight:**
