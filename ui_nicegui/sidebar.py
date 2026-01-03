@@ -44,9 +44,10 @@ class Sidebar:
                     ).classes('text-gray-400 hover:text-blue-400')
                 
                 # Active Provider Status Badge
-                with ui.row().classes('w-full items-center gap-2 mb-2 px-3 py-2').style(
+                # Interactive: Click to retry connection or open settings
+                with ui.row().classes('w-full items-center gap-2 mb-2 px-3 py-2 cursor-pointer hover:bg-opacity-50 transition-colors').style(
                     'background-color: var(--bg-accent); border-radius: 6px; border: 1px solid var(--border-color);'
-                ):
+                ).on('click', self._handle_status_click):
                     self.provider_status_icon = ui.icon('circle', size='xs').classes('text-green-400')
                     self.provider_status_label = ui.label('Active: Loading...').classes('text-xs text-gray-300')
                 
@@ -131,6 +132,50 @@ class Sidebar:
     async def _refresh_models(self):
         """Refresh models from all providers"""
         await self.load_models()
+
+    async def _handle_status_click(self):
+        """
+        Smart Status Click Handler:
+        - If active: Do nothing (or open connection info)
+        - If error/warning: Try to REPAIR connection (Soft Retry)
+        - If no provider: Open settings
+        """
+        if not self.llm_manager.active_provider_id:
+            self._open_settings()
+            return
+
+        provider = self.llm_manager.providers.get(self.llm_manager.active_provider_id)
+        if not provider:
+            return
+
+        # Don't interrupt working connection
+        if provider.config.status == 'active' and not provider.config.init_error:
+            ui.notify("Connection is healthy", type='info')
+            return
+            
+        # REPAIR SEQUENCE
+        # 1. Visual Feedback
+        self.set_optimistic_state(provider.config.name)
+        
+        # 2. Logic Reset (Allow retry)
+        provider.config.init_error = None
+        
+        # 3. Execution
+        try:
+             # Wait a tiny bit to let the UI render the spinner
+             import asyncio
+             await asyncio.sleep(0.1)
+             
+             # Force Re-Init and Load
+             await provider.initialize()
+             await self.load_models()
+             
+             if provider.config.status == 'active':
+                 ui.notify(f"Successfully reconnected to {provider.config.name}", type='positive')
+             
+        except Exception as e:
+            # Error handling is done by load_models, but notify here too
+             ui.notify(f"Retry failed: {str(e)}", type='negative')
     
     def _handle_new_chat(self):
         """Handle new chat button"""
