@@ -43,10 +43,13 @@ class ProviderSettingsDialog:
                 with ui.tabs().classes('w-full text-gray-400') as tabs:
                     provider_tab = ui.tab('AI Providers', icon='smart_toy')
                     appearance_tab = ui.tab('Appearance', icon='palette')
+                    system_tab = ui.tab('System', icon='settings_applications')
                     
                 # Set initial tab
                 if initial_tab == 'appearance':
                     tabs.set_value(appearance_tab)
+                elif initial_tab == 'system':
+                    tabs.set_value(system_tab)
                 else:
                     tabs.set_value(provider_tab)
                 
@@ -94,6 +97,21 @@ class ProviderSettingsDialog:
                                 with ui.row().classes('items-center gap-2'):
                                     ui.element('div').style(f'width: 20px; height: 20px; border-radius: 50%; background-color: {colors["--accent-color"]}')
                                     ui.label(name).style(f'color: {colors["--text-primary"]}')
+            
+                # --- TAB 3: SYSTEM ---
+                with ui.tab_panel(system_tab).classes('p-0'):
+                    ui.label('System Settings & Maintenance').classes('text-sm text-gray-400 mb-6')
+                    
+                    # DANGER ZONE
+                    with ui.card().classes('w-full p-4 bg-red-900 bg-opacity-10 border border-red-700'):
+                        ui.label('🔴 Danger Zone').classes('text-lg font-bold text-red-400 mb-2')
+                        ui.label('Irreversible actions that permanently delete data.').classes('text-sm text-gray-400 mb-4')
+                        
+                        ui.button(
+                            'Reset to Factory Settings',
+                            icon='delete_forever',
+                            on_click=self._show_factory_reset_warning
+                        ).props('outline').classes('text-red-400 border-red-700 hover:bg-red-900')
             
             # 3. FIXED FOOTER (Only for Providers)
             with ui.row().classes('w-full p-6 pt-4 shrink-0 bg-transparent justify-end gap-3') as footer_row:
@@ -435,3 +453,78 @@ class ProviderSettingsDialog:
                     
         except Exception as e:
             print(f"⚠️ Warning: Could not save .env file (ok in bundled app): {e}")
+
+    def _show_factory_reset_warning(self):
+        """Show strict warning dialog before factory reset"""
+        with ui.dialog() as warning_dialog:
+            warning_card = ui.card().classes('max-w-md p-6 bg-red-900 bg-opacity-20 border-2 border-red-700')
+            with warning_card:
+                # Warning Header
+                ui.label('🔴 DANGER: Factory Reset').classes('text-2xl font-bold text-red-400 mb-4')
+                
+                # Warning Content
+                ui.label('This action is IRREVERSIBLE and will PERMANENTLY DELETE:').classes('text-white font-bold mb-2')
+                
+                with ui.column().classes('w-full gap-1 mb-4 ml-4'):
+                    ui.label('✗ All API keys (OpenAI, Anthropic, Google, etc.)').classes('text-red-300')
+                    ui.label('✗ All provider configurations').classes('text-red-300')
+                    ui.label('✗ Complete chat history (all conversations)').classes('text-red-300')
+                    ui.label('✗ All user preferences and settings').classes('text-red-300')
+                
+                ui.label('⚠️ YOU CANNOT UNDO THIS ACTION ⚠️').classes('text-yellow-400 font-bold text-center mb-4')
+                
+                # Confirmation Input
+                ui.label('To confirm, type: DELETE').classes('text-white mb-2')
+                confirm_input = ui.input(
+                    placeholder='Type DELETE here',
+                    validation={'Must type DELETE': lambda value: value == 'DELETE'}
+                ).classes('w-full').props('outlined dark')
+                
+                # Buttons
+                with ui.row().classes('w-full justify-end gap-2 mt-4'):
+                    ui.button('Cancel', on_click=warning_dialog.close).props('outline').classes('text-gray-300')
+                    
+                    reset_btn = ui.button(
+                        'Confirm Reset',
+                        icon='delete_forever',
+                        on_click=lambda: self._execute_factory_reset(warning_dialog, warning_card)
+                    ).classes('bg-red-700 hover:bg-red-600')
+                    
+                    # Bind button enabled state to input value
+                    reset_btn.bind_enabled_from(confirm_input, 'value', lambda v: v == 'DELETE')
+        
+        warning_dialog.open()
+    
+    def _execute_factory_reset(self, warning_dialog, warning_card):
+        """Execute factory reset and show restart/close choice"""
+        from core.factory_reset import execute_factory_reset, restart_app, close_app
+        
+        # Execute reset
+        success = execute_factory_reset()
+        
+        if not success:
+            ui.notify('Factory reset failed. Please check logs.', type='negative')
+            warning_dialog.close()
+            return
+        
+        # Reuse the same dialog - clear and rebuild content
+        warning_card.clear()
+        with warning_card:
+            ui.label('✅ Factory Reset Complete').classes('text-xl font-bold text-green-400 mb-2')
+            ui.label('Your data has been permanently cleared.').classes('text-gray-300 mb-2')
+            ui.label('The app is now in factory state.').classes('text-gray-400 mb-6')
+            
+            ui.label('What would you like to do?').classes('text-white font-bold mb-4')
+            
+            with ui.column().classes('w-full gap-3'):
+                # Recommended: Restart
+                ui.button(
+                    '🔄 Restart App Now (Recommended)',
+                    on_click=lambda: restart_app()
+                ).classes('w-full bg-blue-600 hover:bg-blue-500 text-lg py-3')
+                
+                # Alternative: Close
+                ui.button(
+                    '🚪 Close App',
+                    on_click=lambda: close_app()
+                ).props('outline').classes('w-full text-gray-400 text-sm')
