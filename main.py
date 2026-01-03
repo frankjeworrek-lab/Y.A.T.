@@ -246,7 +246,7 @@ def start_desktop_mode():
         """Start NiceGUI server in background thread"""
         ui.run(
             title='Y.A.T.',
-            favicon='./logo/dock.png',
+            favicon=resolve_path('logo/dock.png'),
             dark=True,
             reload=False,
             show=False,  # Don't open browser - PyWebView will handle display
