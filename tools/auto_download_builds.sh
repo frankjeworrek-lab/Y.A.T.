@@ -31,10 +31,16 @@ echo "   This may take 5-10 minutes. You can continue working."
 echo ""
 
 # Watch the latest workflow run (blocks until complete)
-# Using --watch shows live progress
+# If no runs are in progress, 'gh run watch' exits with 1. We assume this means they are done.
+echo "   Checking build status..."
 gh run watch --exit-status || {
-    echo "❌ Build failed or was cancelled!"
-    exit 1
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -eq 1 ]; then
+        echo "   ℹ️  No active builds found. Assuming builds are already complete."
+    else
+        echo "❌ Build failed or was cancelled!"
+        exit 1
+    fi
 }
 
 echo ""

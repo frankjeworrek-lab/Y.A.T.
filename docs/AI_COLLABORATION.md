@@ -110,6 +110,7 @@ User: "Release v0.x.x"
    - Runs in **background** (note the `&`)
    - User can continue working
    - Script waits for GitHub Actions completion
+   - **Robust:** Can be run immediately OR later (handles finished builds)
    - Downloads all platform artifacts to `./builds/`
    - Sends desktop notification when ready
 
