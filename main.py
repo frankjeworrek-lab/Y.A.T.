@@ -16,7 +16,7 @@ from core.llm_manager import LLMManager
 from core.providers.types import ProviderConfig
 from ui_nicegui.app_layout import AppLayout
 
-APP_VERSION = "v0.2.14"
+APP_VERSION = "v0.2.15"
 
 def resolve_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller"""

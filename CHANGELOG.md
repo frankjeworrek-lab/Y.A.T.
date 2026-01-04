@@ -7,12 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.15] - 2026-01-04
+### Changed
+- **UI Status Refinement:** Replaced "Bubble" design with "Tech-Chip" aesthetic (Dark Capsule, Monospace-style text, Frameless).
+- **Control Layout:** Unified right-side controls with context-aware animations (e.g., spinning refresh icon).
+- **Guidelines:** Added "Feedback Reflection Protocol" to prevent impulsive scope creep.
+
 ## [v0.2.14] - 2026-01-04
 ### Added
 - **Active Assistance UI (Status Matrix v2):** Comprehensive status indicator system with "Problem ➜ Solution" logic.
 - **Contextual Status:** Provider-specific error messages (e.g., "[Mistral]: Auth Failed").
 - **Verification Flow:** Clickable status badge triggers self-check and verification.
 - **Guidelines Update:** New protocols for Work Packages and State Safety.
+
+
 
 ---
 

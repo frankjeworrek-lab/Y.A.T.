@@ -334,6 +334,19 @@ The AI acts as the "External Memory" and "Structure Keeper" for the user. Ideall
 
 **Golden Rule:** *Be the friendly navigator in the creative chaos.*
 
+## The Feedback Reflection Protocol (The "Pause Button" Protocol)
+
+**Trigger:**  
+The User provides feedback on a current implementation (e.g., "This looks wrong", "X is Y").
+
+**Rule:**
+1.  **Do NOT Fix Immediately:** Never jump to code changes based on a single observation without analysis.
+2.  **Separate Concern:** Determine if the feedback relates to the *current* Work Package (Scope) or is a new/side issue (Logic vs. Design).
+3.  **Discuss first:** Ask: *"Is this a bug you want fixed NOW (Risk of Scope Creep), or shall we note it for the next iteration?"*
+4.  **No Silent Scope Creep:** Do not sneak logic changes into design tasks (or vice versa) just because "it's just one line".
+
+**Why?** To prevent "Theme Mixing" and chaos through impulsive patching.
+
 ## The Golden Rule: Stable Reference Points
 
 **Core Insight:**
